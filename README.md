@@ -31,7 +31,7 @@ This tool is built using [Inquire](https://docs.rs/inquire/latest/inquire/).
 
 ### Store
 
-The **Store** component provides a simple synchronous MongoDB storage layer for:
+The **Store** component provides a simple synchronous [MangoDB](https://www.mongodb.com/) storage layer for:
 - Storing configurations.
 - Storing outputs.
 

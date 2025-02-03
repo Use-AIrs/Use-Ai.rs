@@ -2,8 +2,8 @@
 resolver = "2"
 members = [
     # These are the core libarys
-    "crates/core/lib-operator",
-    "crates/core/lib-transformer",
+    "crates/core/lib-calculator",
+    "crates/core/lib-stage",
     "crates/core/lib-store",
     "crates/core/playground",
 

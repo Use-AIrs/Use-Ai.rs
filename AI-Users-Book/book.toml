@@ -1,0 +1,6 @@
+[book]
+authors = ["Lucca O."]
+language = "en"
+multilingual = false
+src = "src"
+title = "The AI User's guide to the Library"

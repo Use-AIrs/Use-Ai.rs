@@ -1,4 +1,4 @@
-use lib_transformer::error::TransformerError;
+use lib_stage::error::TransformerError;
 use mongodb::bson::document::ValueAccessError;
 use serde_json::Error as SerdeError;
 use thiserror::Error;

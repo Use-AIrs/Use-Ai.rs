@@ -39,7 +39,6 @@ impl RawTable<String> {
         let header = match &self.header {
             Some(h) => h,
             None => Err(TransformerError::NoInputColumns)?,
-            _ => panic!("Critical Transformer Error."),
         };
 
         let mut global_map = self.map.take().unwrap_or_else(HashMap::new);

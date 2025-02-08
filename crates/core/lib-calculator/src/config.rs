@@ -1,5 +1,9 @@
+//! Here we find the part of the configuration which will be handles by `lib-calculator`.
+use super::model::gbdt::GbdtRules;
 use serde::{Deserialize, Serialize};
 
+/// Models is an enum which represents every current model available  in Use-AI.rs and Context needed
+/// for the Operations.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "model_type")]
 pub enum Models {
@@ -15,7 +19,7 @@ pub enum Models {
         input_columns: Option<Vec<String>>,
         input_from: Option<String>,
         target_columns: Vec<String>,
-        hyperparams: HPGradientBoostedDecisionTree,
+        hyperparams: GbdtRules,
         mode: Mode,
     },
     QLearning {

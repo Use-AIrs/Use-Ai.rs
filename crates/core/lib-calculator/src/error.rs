@@ -8,4 +8,6 @@ pub enum CalcError {
     GpuError,
     #[error("transparent")]
     OperationError,
+    #[error("Reduce Error")]
+    ReduceError(#[from] cubecl::reduce::ReduceError),
 }

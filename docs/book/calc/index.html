@@ -156,10 +156,13 @@
 <h3 id="current"><a class="header" href="#current">Current</a></h3>
 <p>Here we find the first structures of how the Gpu Backends will be called, build and executed.</p>
 <p><code>lib.rs</code> gives us the first structure which needs to be provided by stage.</p>
-<pre><code class="language-rust">pub struct MetaData {
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct MetaData {
     pub stride: Box&lt;[usize]&gt;,
     pub shape: Box&lt;[usize]&gt;,
-}</code></pre>
+}
+<span class="boring">}</span></code></pre></pre>
 <p>Every array needed for the operation needs to be provided by <code>lib-stage</code> as <code>MetaData</code> and its <code>Vec&lt;f32&gt;</code> representation.</p>
 <ul>
 <li><code>pub fn build(stride: Box&lt;[usize]&gt;, shape: Box&lt;[usize]&gt;) -&gt; MetaData {...}</code>: Can be used to build <code>MetaData</code>.</li>
@@ -167,23 +170,29 @@
 <li><code>pub fn handle_from_vec&lt;R: Runtime&gt;(&amp;self, input: Vec&lt;f32&gt;) -&gt; (&amp;Self, Handle) {...}</code> builds a tuple containing <code>&amp;self</code> and a filled <code>Handle</code> of a gpu client.</li>
 </ul>
 <p><code>model</code>'s <code>mod.rs</code> contains the <code>Operation</code> trait.</p>
-<pre><code class="language-rust">pub trait Operation: Sized {
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Operation: Sized {
     type Ctx;
     type Operator;
     type Output;
 
     fn exec(ctx: Self::Ctx, operator: Self::Operator) -&gt; Self::Output;
-}</code></pre>
+}
+<span class="boring">}</span></code></pre></pre>
 <p>Every <code>Operation</code> needs a <code>Ctx</code>, which can be implemented trough <code>#[ctx]</code> and an Operator which needs to be implemented
 trough <code>#[operator]</code>. The Operator macro allow us to build a <code>TensorHandleRef</code> tuple out of <code>GbdtHandle</code>'s which will be
 used to build the <code>Operation</code> on the GPUs Kernel.</p>
 <p>The Operators tuple is our representation of the Memory in the GPU. For now, <code>#[operator]</code> just builds an implementation
 over a structure like</p>
-<pre><code class="language-rust">pub struct GbdtOperator {
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct GbdtOperator {
     pub target: (MetaData, Handle),
     pub table: (MetaData, Handle),
     pub buffer: (MetaData, Handle),
-}</code></pre>
+}
+<span class="boring">}</span></code></pre></pre>
 <p>to build a tuple of <code>TensorHandleRef&lt;R&gt;</code> which will be lowered with <a href="https://github.com/tracel-ai/cubecl">CubeCL</a> into
 the Kernel with a specific <code>Operation</code> which contains the needed Kernel of the Model.</p>
 <h3 id="future"><a class="header" href="#future">Future</a></h3>

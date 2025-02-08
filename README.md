@@ -11,7 +11,7 @@ For production coding, we will focus on implementing reinforcement learning (RL)
 To provide insights into our decision-making process and document early-stage changes, the maintainer is maintaining a small blog in the [discussions section](https://github.com/Use-AIrs/use-ai.rs/discussions).
 
 
-## Staging Tool
+## Use AI Tool
 
 This tool represents the highest level of abstraction we provide, in the form of a **CLI tool**.  
 The CLI tool will include:
@@ -37,9 +37,9 @@ The **Store** component provides a simple synchronous [MangoDB](https://www.mong
 
 The stored data can be downstreamed for further use.
 
-### Transformer
+### Stage
 
-The **Transformer** component processes and prepares abstract information for the Operator.  
+The **Stage** component processes and prepares abstract information for the Operator.  
 Key features:
 - Prepares data for downstream processing.
 - Parallelizes some operations using [Rayon](https://docs.rs/rayon/latest/rayon/) on the CPU.
@@ -47,11 +47,11 @@ Key features:
 **Future Plans**:
 - **High-Performance Computing (HPC)**: Enhance parallelism and optimization for large-scale data streams.
 
-### Operator
+### Calculator
 
-The **Operator** component processes prepared data into **Burn Tensors**.  
+The **Calculator** component processes prepared data into **Burn Tensors**.  
 Key features:
-- Executes Tensors using the **WGPU backend**.
+- Executes Tensors using the **WGPU backend** for now.
 - Designed with reinforcement learning (RL) in mind.
 
 **Future Plans**:

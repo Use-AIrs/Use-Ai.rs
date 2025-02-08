@@ -9,6 +9,7 @@ use crate::operation::exec::base::PipelineExec;
 use crate::operation::push::base::PipelinePush;
 use cubecl::channel::ComputeChannel;
 use cubecl::prelude::*;
+use cubecl::reduce::*;
 
 pub mod error;
 pub mod exec;

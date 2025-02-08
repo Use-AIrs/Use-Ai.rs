@@ -4,6 +4,3 @@ language = "en"
 multilingual = false
 src = "src"
 title = "The AI User's guide to Use-AI.rs"
-
-[output.html.playground]
-runnable = false

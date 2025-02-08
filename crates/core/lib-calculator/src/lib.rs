@@ -33,3 +33,25 @@ impl MetaData {
         (self, handle)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use cubecl::prelude::*;
+    use cubecl::wgpu::WgpuRuntime;
+    #[test]
+    fn md_test_empty() {
+        let md = MetaData::build(Box::new([1]), Box::new([1]));
+        let (meta, handle) = MetaData::handle_empty::<WgpuRuntime>(&md);
+        let len = handle.size();
+        assert_eq!(len, 4);
+    }
+    #[test]
+    fn md_test_vec() {
+        let md = MetaData::build(Box::new([2, 2]), Box::new([2, 1]));
+        let (meta, handle) =
+            MetaData::handle_from_vec::<WgpuRuntime>(&md, vec![1.0, 2.0, 3.0, 4.0]);
+        let len = handle.size();
+        assert_eq!(len, 16);
+    }
+}

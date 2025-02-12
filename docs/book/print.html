@@ -31,6 +31,8 @@
 
         <!-- Custom theme stylesheets -->
 
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root to javascript -->
         <script>
@@ -256,6 +258,17 @@ we <code>lib-calculator</code> also can help with standardization in <code>lib-s
 <div style="break-before: page; page-break-before: always;"></div><h1 id="welcome-dev"><a class="header" href="#welcome-dev">Welcome, Dev!</a></h1>
 <p>Here you can find the Blog of <em>Use-AI.rs</em>. Here Developers who are currently actively Developing <em>Use-AI.rs</em> make technical
 discussions of the current state of <em>Use-AI.rs</em>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="short-update"><a class="header" href="#short-update">Short Update</a></h1>
+<h2 id="maintainers-comment--12022025"><a class="header" href="#maintainers-comment--12022025">Maintainer's Comment | 12.02.2025</a></h2>
+<p>On the weekend I have Implemented the first <code>PipelineExec</code> to show how we want to use <code>cubecl-reduce</code> for the first Iteration of Use-AI.rs.
+In the future we want to build our own reduce strategies and configurations. But this will be good enough for now.
+With <code>PipelinePush</code> we will see the first Kernels which fill Tensors depending on the type of <code>PipelinePush</code> needed for Future execution trough <code>PipelineExec</code>.
+With these reusable Pipeline Operations we can easily compose different AI Models with GPU Optimisation.
+This most likely implicates, that we are no longer aim to lower all of <code>lib-calculator</code> into the GPU. More likely <code>lib-calculator::operation</code> will be the
+only module what will be completely on the GPU Kernel.</p>
+<p>Apart from this I decided this week to use <a href="https://arxiv.org/abs/1603.02754">XGBoost: A Scalable Tree Boosting System</a> (Tianqi Chen and Carlos Guestrin, 10. Jun 2016) as the paper
+which will lead us in implementing XGBoost.</p>
+<p>Next week we will see more code again!</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="new-blog-and-doc-updates"><a class="header" href="#new-blog-and-doc-updates">New Blog and Doc Updates</a></h1>
 <h2 id="maintainers-comment--03022025"><a class="header" href="#maintainers-comment--03022025">Maintainer's Comment | 03.02.2025</a></h2>
 <h3 id="welcome-to-the-new-blog-1"><a class="header" href="#welcome-to-the-new-blog-1">Welcome to the new Blog</a></h3>
@@ -443,7 +456,9 @@ Once these foundational changes are complete, the next step will be to introduce
 
         <script>
         window.addEventListener('load', function() {
-            window.setTimeout(window.print, 100);
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
         });
         </script>
 

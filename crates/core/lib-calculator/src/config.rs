@@ -1,30 +1,40 @@
+//! Here we find the part of the configuration which will be handles by `lib-calculator`.
+use super::model::gbdt::GbdtRules;
 use serde::{Deserialize, Serialize};
 
+/// Models is an enum which represents every current model available  in Use-AI.rs and Context needed
+/// for the Operations.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "model_type")]
 pub enum Models {
     NeuralNetwork {
-        id: String,
+        id: usize,
         input_columns: Option<Vec<String>>,
         input_from: Option<String>,
         hyperparams: HPNeuralNetwork,
-        output: ModelOutput,
+        mode: Mode,
     },
     GradientBoostedDecisionTree {
-        id: String,
+        id: usize,
         input_columns: Option<Vec<String>>,
         input_from: Option<String>,
         target_columns: Vec<String>,
-        hyperparams: HPGradientBoostedDecisionTree,
-        output: ModelOutput,
+        hyperparams: GbdtRules,
+        mode: Mode,
     },
     QLearning {
-        id: String,
+        id: usize,
         input_columns: Option<Vec<String>>,
         input_from: Option<String>,
         hyperparams: HPQLearning,
-        output: ModelOutput,
+        mode: Mode,
     },
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Mode {
+    Train,
+    Generate,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -40,7 +50,7 @@ pub struct HPGradientBoostedDecisionTree {
     pub n_trees: u64,
     pub learning_rate: f32,
     pub max_depth: u64,
-    pub subsample: Option<f32>,
+    pub sub_sample: Option<f32>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -49,8 +59,4 @@ pub struct HPQLearning {
     pub learning_rate: f32,
     pub discount: f32,
     pub episodes: u64,
-}
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ModelOutput {
-    pub output_mode: String,
 }

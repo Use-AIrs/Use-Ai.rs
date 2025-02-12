@@ -22,7 +22,7 @@ impl Config {
         let reader = BufReader::new(file);
 
         let config: Config = serde_json::from_reader(reader)?;
-        if config.version != "0.1_pre_alpha" {
+        if config.version != "0.11_pre_alpha" {
             Err(StagingError::InvalidConfig)
         } else {
             Ok(config)

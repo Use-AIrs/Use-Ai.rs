@@ -1,10 +1,11 @@
+#[allow(unused_imports, dead_code, unused_variables)]
 use crate::config::DataSection;
 use crate::data::{RawTable, Table};
 use crate::error::{Result, TransformerError};
 
 pub mod config;
 pub mod data;
-#[allow(unused_imports, dead_code, unused_variables)]
+
 pub mod error;
 pub mod output_guard;
 

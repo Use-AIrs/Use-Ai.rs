@@ -23,7 +23,7 @@ pub struct DataScheme {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TransformationStep {
     #[serde(rename = "t_id")]
-    pub id: String,
+    pub id: usize,
     pub operation: String,
     pub params: Option<Parameters>,
 }

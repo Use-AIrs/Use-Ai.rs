@@ -8,6 +8,6 @@ pub mod mangodb;
 
 pub fn init_transformation() -> Result<()> {
     let config = get_active_config()?;
-    transformer(config.data);
+    let _ = transformer(config.data);
     Ok(())
 }

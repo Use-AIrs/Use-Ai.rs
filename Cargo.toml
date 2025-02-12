@@ -2,7 +2,9 @@
 resolver = "2"
 members = [
     # These are the core libarys
+
     "crates/core/lib-calculator",
+    "crates/core/lib-proc_macros",
     "crates/core/lib-stage",
     "crates/core/lib-store",
     "crates/core/playground",

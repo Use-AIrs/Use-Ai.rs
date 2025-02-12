@@ -1,10 +1,6 @@
-use crate::ctx::CpuCtx;
-use crate::operation::gpu_ctx::GpuCtx;
-use cubecl::Runtime;
+use cubecl::prelude::*;
 
+/// This trait moves the operator after a reduction in the state it needs to be in for the next reduction.
 pub trait PipelinePush<R: Runtime> {
-    type Output;
-
-    fn init(ctx: GpuCtx<R>) -> Self::Output;
-    fn push(self) -> Self::Output;
+    fn push();
 }

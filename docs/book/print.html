@@ -1,0 +1,452 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The AI User&#x27;s guide to Use-AI.rs</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The AI User&#x27;s guide to Use-AI.rs</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h3 id="welcome-to-the-new-blog"><a class="header" href="#welcome-to-the-new-blog">Welcome to the new Blog</a></h3>
+<p>As you may have noticed the new Blogs place will also will be used as entry place for the <em>Use-AI.rs</em> Documentation. This
+was decided due to the fact, that it's easier to maintain a good documentation within the codebase compared to an external
+Application. So, <strong>Welcome to the new Documentation!</strong> This blog will be useful to communicate changes and discuss
+development decisions for future users of the Framework.</p>
+<h4 id="work-in-progress"><a class="header" href="#work-in-progress">Work in Progress</a></h4>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="tooling"><a class="header" href="#tooling">Tooling</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="test-ai"><a class="header" href="#test-ai">Test AI</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="use-ai"><a class="header" href="#use-ai"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/use-ai">Use AI</a></a></h1>
+<h3 id="current"><a class="header" href="#current">Current</a></h3>
+<p><em>Use-AI</em> is just a basic cli tool written with <a href="https://github.com/mikaelmello/inquire">Inquire</a>. Inquire is used since
+we just want to have a nice little entry point for People who doesn't now the project and want to find out what with data
+can be done with <em>Use-AI.rs</em>. Also, Inquire provides an interface which allows you to easily find the underlying functions
+so you have an example of how Use-AI.rs can be used in production.</p>
+<h3 id="future"><a class="header" href="#future">Future</a></h3>
+<p>The <em>Use-AI</em> Tool is just the first tool we want to provide. In Future the goal is to provide a hole Network Server Layer.
+For the Server layer we are thinking about a TCP Server. The Server should provide a load test tool for a hypothetical
+Query Server. But since this is a plan in far future these are only idea's. When someone I found who can implement something
+like that it may be implemented in parallel.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="store"><a class="header" href="#store"><a href="transformer/">Store</a></a></h1>
+<h4 id="current-1"><a class="header" href="#current-1">Current</a></h4>
+<p><code>lib-store</code> is the first library of the Core of <em>Use-AI.es</em>. Here we find <code>ai_config.rs</code> and <code>mangodb.rs</code>.</p>
+<h4 id="future-1"><a class="header" href="#future-1">Future</a></h4>
+<p>Not much will happen here. Only when the Config is expanded we will see some changes here. Some additional Db request
+functions and some functions regarding Configs will be added here when needed.# Store</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="config"><a class="header" href="#config">Config</a></h1>
+<p><code>ai_config.rs</code>, is the entrypoint for the configuration file.</p>
+<ul>
+<li><code>Models</code>, will be provided by <code>lib-calculator</code> and</li>
+<li><code>DataSection</code>, will be provided by <code>lib-stage</code>.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="mangodb"><a class="header" href="#mangodb">MangoDB</a></h1>
+<p><code>mangodb.rs</code>, operates <a href="https://www.mongodb.com/docs/drivers/rust/current/">MangoDB</a> in synchronous.
+Since we expect this Db to run on a system what also handles our data in parallel on the cpu and
+since we don't have to worry about huge db requests it is decided that we only communicate
+synchronised with the Db so we don't spawn threads that block building threads of performance critical features.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="stage"><a class="header" href="#stage"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-stage">Stage</a></a></h2>
+<h4 id="current-2"><a class="header" href="#current-2">Current</a></h4>
+<p>Here is where the construction site begins. Currently, we only have a CSV pipeline to show what the plan is with <code>lib-stager</code>.
+This pipeline shows how we want to handle data on a more abstract layer. For now, we just input some csv file and handle
+it from there with different operations on columns or the hole data. This is chosen because we want to reach a first complete
+pass through <em>Use-AI.rs</em> using a simple XGBoost algorithm for now. Till we expanded that simple XGBoost it's called GBDT here.</p>
+<h3 id="future-2"><a class="header" href="#future-2">Future</a></h3>
+<p>For DQNs and Q-learning we need to expand <code>lib-stage</code>. Goal is not to only use files instead this will be used to Configure
+a Data Stream which first, will enable the possibility to get Input from program external drivers and also, will add the
+possibility for communication between models. But to be able to implement such features we first need to focus on the
+<code>lib-calculator</code>.
+The functions as they are, will be renamed in near Future.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="config-1"><a class="header" href="#config-1">Config</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="data-input"><a class="header" href="#data-input">Data Input</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="transfer"><a class="header" href="#transfer">Transfer</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="data-output"><a class="header" href="#data-output">Data Output</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="calculator-and-proc-macros"><a class="header" href="#calculator-and-proc-macros"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-calculator">Calculator and Proc Macros</a></a></h2>
+<h3 id="current-3"><a class="header" href="#current-3">Current</a></h3>
+<p>Here we find the first structures of how the Gpu Backends will be called, build and executed.</p>
+<p><code>lib.rs</code> gives us the first structure which needs to be provided by stage.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct MetaData {
+    pub stride: Box&lt;[usize]&gt;,
+    pub shape: Box&lt;[usize]&gt;,
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Every array needed for the operation needs to be provided by <code>lib-stage</code> as <code>MetaData</code> and its <code>Vec&lt;f32&gt;</code> representation.</p>
+<ul>
+<li><code>pub fn build(stride: Box&lt;[usize]&gt;, shape: Box&lt;[usize]&gt;) -&gt; MetaData {...}</code>: Can be used to build <code>MetaData</code>.</li>
+<li><code>pub fn handle_empty&lt;R: Runtime&gt;(&amp;self) -&gt; (&amp;Self, Handle) {...}</code> builds a tuple containing <code>&amp;self</code> and a empty <code>Handle</code> of a gpu client.</li>
+<li><code>pub fn handle_from_vec&lt;R: Runtime&gt;(&amp;self, input: Vec&lt;f32&gt;) -&gt; (&amp;Self, Handle) {...}</code> builds a tuple containing <code>&amp;self</code> and a filled <code>Handle</code> of a gpu client.</li>
+</ul>
+<p><code>model</code>'s <code>mod.rs</code> contains the <code>Operation</code> trait.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Operation: Sized {
+    type Ctx;
+    type Operator;
+    type Output;
+
+    fn exec(ctx: Self::Ctx, operator: Self::Operator) -&gt; Self::Output;
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Every <code>Operation</code> needs a <code>Ctx</code>, which can be implemented trough <code>#[ctx]</code> and an Operator which needs to be implemented
+trough <code>#[operator]</code>. The Operator macro allow us to build a <code>TensorHandleRef</code> tuple out of <code>GbdtHandle</code>'s which will be
+used to build the <code>Operation</code> on the GPUs Kernel.</p>
+<p>The Operators tuple is our representation of the Memory in the GPU. For now, <code>#[operator]</code> just builds an implementation
+over a structure like</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct GbdtOperator {
+    pub target: (MetaData, Handle),
+    pub table: (MetaData, Handle),
+    pub buffer: (MetaData, Handle),
+}
+<span class="boring">}</span></code></pre></pre>
+<p>to build a tuple of <code>TensorHandleRef&lt;R&gt;</code> which will be lowered with <a href="https://github.com/tracel-ai/cubecl">CubeCL</a> into
+the Kernel with a specific <code>Operation</code> which contains the needed Kernel of the Model.</p>
+<h3 id="future-3"><a class="header" href="#future-3">Future</a></h3>
+<p>In the future we will lower all implementations of <code>lib-calculator</code> into the GPU Kernel with CubeCL. The goal here is that
+we <code>lib-calculator</code> also can help with standardization in <code>lib-stage</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="config-2"><a class="header" href="#config-2">Config</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="operation"><a class="header" href="#operation">Operation</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="welcome-dev"><a class="header" href="#welcome-dev">Welcome, Dev!</a></h1>
+<p>Here you can find the Blog of <em>Use-AI.rs</em>. Here Developers who are currently actively Developing <em>Use-AI.rs</em> make technical
+discussions of the current state of <em>Use-AI.rs</em>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="new-blog-and-doc-updates"><a class="header" href="#new-blog-and-doc-updates">New Blog and Doc Updates</a></h1>
+<h2 id="maintainers-comment--03022025"><a class="header" href="#maintainers-comment--03022025">Maintainer's Comment | 03.02.2025</a></h2>
+<h3 id="welcome-to-the-new-blog-1"><a class="header" href="#welcome-to-the-new-blog-1">Welcome to the new Blog</a></h3>
+<p>As you may have noticed the new Blogs place will also will be used as entry place for the <em>Use-AI.rs</em> Documentation. This
+was decided due to the fact, that it's easier to maintain a good documentation within the codebase compared to an external
+Application. So, <strong>Welcome to the new Documentation!</strong> This blog will be useful to communicate changes and discuss
+development decisions for future users of the Framework.</p>
+<h3 id="state"><a class="header" href="#state">State</a></h3>
+<p>Today I will go tough the hole Project and will discuss the decisions made. This will be structured from the highest abstraction
+used in Use-AI.rs down to the lowest abstraction layers. This represents the architecture chosen.
+These discussions will also be used in the Book to introduce the idea of each component.</p>
+<h3 id="use-ai-1"><a class="header" href="#use-ai-1"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/use-ai">Use-AI</a></a></h3>
+<h4 id="current-4"><a class="header" href="#current-4">Current</a></h4>
+<p><em>Use-AI</em> is just a basic cli tool written with <a href="https://github.com/mikaelmello/inquire">Inquire</a>. Inquire is used since
+we just want to have a nice little entry point for People who doesn't now the project and want to find out what with data
+can be done with <em>Use-AI.rs</em>. Also, Inquire provides an interface which allows you to easily find the underlying functions
+so you have an example of how Use-AI.rs can be used in production.</p>
+<h4 id="future-4"><a class="header" href="#future-4">Future</a></h4>
+<p>The Use-AI Tool is just the first tool we want to provide. In Future the goal is to provide a hole Network Server Layer.
+For the Server layer we are thinking about a TCP Server. The Server should provide a load test tool for a hypothetical
+Query Server. But since this is a plan in far future these are only idea's. When someone I found who can implement something
+like that it may be implemented in parallel.</p>
+<h3 id="store-1"><a class="header" href="#store-1"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-store">Store</a></a></h3>
+<h4 id="current-5"><a class="header" href="#current-5">Current</a></h4>
+<p><code>lib-store</code> is the first library of the Core of <em>Use-AI.es</em>. Here we find <code>ai_config.rs</code> and <code>mangodb.rs</code>.</p>
+<p><code>ai_config.rs</code>, is the entrypoint for the configuration file.</p>
+<ul>
+<li><code>Models</code>, will be provided by <code>lib-calculator</code> and</li>
+<li><code>DataSection</code>, will be provided by <code>lib-stage</code>.</li>
+</ul>
+<p><code>mangodb.rs</code>, operates <a href="https://www.mongodb.com/docs/drivers/rust/current/">MangoDB</a> in synchronous.
+Since we expect this Db to run on a system what also handles our data in parallel on the cpu and
+since we don't have to worry about huge db requests it is decided that we only communicate
+synchronised with the Db so we don't spawn threads that block building threads of performance critical features.</p>
+<h4 id="future-5"><a class="header" href="#future-5">Future</a></h4>
+<p>Not much will happen here. Only when the Config is expanded we will see some changes here. Some additional Db request
+functions and some functions regarding Configs will be added here when needed.</p>
+<h3 id="stage-1"><a class="header" href="#stage-1"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-stage">Stage</a></a></h3>
+<h4 id="current-6"><a class="header" href="#current-6">Current</a></h4>
+<p>Here is where the construction site begins. Currently, we only have a CSV pipeline to show what the plan is with <code>lib-stager</code>.
+This pipeline shows how we want to handle data on a more abstract layer. For now, we just input some csv file and handle
+it from there with different operations on columns or the hole data. This is chosen because we want to reach a first complete
+pass through <em>Use-AI.rs</em> using a simple XGBoost algorithm for now. Till we expanded that simple XGBoost it's called GBDT here.</p>
+<h4 id="future-6"><a class="header" href="#future-6">Future</a></h4>
+<p>For DQNs and Q-learning we need to expand <code>lib-stage</code>. Goal is not to only use files instead this will be used to Configure
+a Data Stream which first, will enable the possibility to get Input from program external drivers and also, will add the
+possibility for communication between models. But to be able to implement such features we first need to focus on the
+<code>lib-calculator</code>.
+The functions as they are, will be renamed in near Future.</p>
+<h3 id="calculator-and-proc-macros-1"><a class="header" href="#calculator-and-proc-macros-1"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-calculator">Calculator and Proc Macros</a></a></h3>
+<h4 id="current-7"><a class="header" href="#current-7">Current</a></h4>
+<p>Here we find the first structures of how the Gpu Backends will be called, build and executed.</p>
+<p><code>lib.rs</code> gives us the first structure which needs to be provided by stage.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct MetaData {
+    pub stride: Box&lt;[usize]&gt;,
+    pub shape: Box&lt;[usize]&gt;,
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Every array needed for the operation needs to be provided by <code>lib-stage</code> as <code>MetaData</code> and its <code>Vec&lt;f32&gt;</code> representation.</p>
+<ul>
+<li><code>pub fn build(stride: Box&lt;[usize]&gt;, shape: Box&lt;[usize]&gt;) -&gt; MetaData {...}</code>: Can be used to build <code>MetaData</code>.</li>
+<li><code>pub fn handle_empty&lt;R: Runtime&gt;(&amp;self) -&gt; (&amp;Self, Handle) {...}</code> builds a tuple containing <code>&amp;self</code> and a empty <code>Handle</code> of a gpu client.</li>
+<li><code>pub fn handle_from_vec&lt;R: Runtime&gt;(&amp;self, input: Vec&lt;f32&gt;) -&gt; (&amp;Self, Handle) {...}</code> builds a tuple containing <code>&amp;self</code> and a filled <code>Handle</code> of a gpu client.</li>
+</ul>
+<p><code>model</code>'s <code>mod.rs</code> contains the <code>Operation</code> trait.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Operation: Sized {
+    type Ctx;
+    type Operator;
+    type Output;
+
+    fn exec(ctx: Self::Ctx, operator: Self::Operator) -&gt; Self::Output;
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Every <code>Operation</code> needs a <code>Ctx</code>, which can be implemented trough <code>#[ctx]</code> and an Operator which needs to be implemented
+trough <code>#[operator]</code>. The Operator macro allow us to build a <code>TensorHandleRef</code> tuple out of <code>GbdtHandle</code>'s which will be
+used to build the <code>Operation</code> on the GPUs Kernel.</p>
+<p>The Operators tuple is our representation of the Memory in the GPU. For now, <code>#[operator]</code> just builds an implementation
+over a structure like</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct GbdtOperator {
+    pub target: (MetaData, Handle),
+    pub table: (MetaData, Handle),
+    pub buffer: (MetaData, Handle),
+}
+<span class="boring">}</span></code></pre></pre>
+<p>to build a tuple of <code>TensorHandleRef&lt;R&gt;</code> which will be lowered with <a href="https://github.com/tracel-ai/cubecl">CubeCL</a> into
+the Kernel with a specific <code>Operation</code> which contains the needed Kernel of the Model.</p>
+<h4 id="future-7"><a class="header" href="#future-7">Future</a></h4>
+<p>In the future we will lower all implementations of <code>lib-calculator</code> into the GPU Kernel with CubeCL. The goal here is that
+we <code>lib-calculator</code> also can help with standardization in <code>lib-stage</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="gpu-optimized-gbdt-with-cubecl-a-step-towards-xgboost--25012025"><a class="header" href="#gpu-optimized-gbdt-with-cubecl-a-step-towards-xgboost--25012025">GPU-Optimized GBDT with CubeCL: A Step Towards XGBoost | 25.01.2025</a></h1>
+<p>To build our own XGBoost algorithm, I will start with a GPU-optimized Gradient Boosted Decision Tree (GBDT). This step will help me get a feeling for CubeCL's reduce feature and understand how to extend it for efficient GPU operations.</p>
+<h3 id="current-approach"><a class="header" href="#current-approach">Current Approach</a></h3>
+<p>The CubeCL reduce feature processes each GPU operation individually. For each primitive operation (+, *, argmax, ...), the CPU allocates memory on the GPU, sends data for computation, retrieves the result, and repeats this for subsequent operations. This isn't optimal because of frequent memory allocations and data transfers.</p>
+<h3 id="goals"><a class="header" href="#goals">Goals</a></h3>
+<p>The primary focus is to implement a GBDT using CubeCL’s reduce feature in its current state. This will provide a deeper understanding of its behavior and limitations. Initially, the implementation will prioritize functionality over optimization to build familiarity with CubeCL-reduce for future development.</p>
+<h3 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h3>
+<p>In the future, CubeCL-reduce will be enhanced to support multiple GPU operations in a single step. This approach will reduce the need for repetitive memory allocations. Additionally, strategies for efficient memory management will be developed to minimize the overhead caused by data transfers between the CPU and GPU. These improvements will form the basis for creating an efficient GPU-based XGBoost algorithm.</p>
+<h3 id="whats-next"><a class="header" href="#whats-next">What’s Next?</a></h3>
+<p>Next week, I plan to release the first version of the GBDT implementation using CubeCL reduce. While it will not yet be optimized, this version will provide valuable insights and set the stage for further enhancements.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="use-ai-tool-demo--14012025"><a class="header" href="#use-ai-tool-demo--14012025">Use AI Tool Demo | 14.01.2025</a></h1>
+<p>With today’s update, the <strong>Use-AI.rs</strong> tool is introduced! To get started, you need to have <strong>Rust</strong> installed and a <strong>MongoDB</strong> instance running at <code>mongodb://127.0.0.1:27017/</code>.</p>
+<p>You can target other domains by modifying the connection string in <a href="https://github.com/Use-AIrs/use-ai.rs/blob/main/crates/core/lib-store/src/mangodb.rs"><code>mangodb.rs</code></a>. While this approach is not ideal and will be improved in the future, it demonstrates the current design concept adequately for now.</p>
+<p>To begin, navigate to <code>crates/use-ai</code> in your terminal. Here, you can run the exploration tool for <strong>Use-AI.rs</strong>.</p>
+<h3 id="steps-to-get-started"><a class="header" href="#steps-to-get-started">Steps to Get Started:</a></h3>
+<ol>
+<li>Open the <strong>Config</strong> menu.</li>
+<li>Select <strong>Import</strong> and provide the following:
+<ul>
+<li><strong>Path</strong>: The path to the example configuration file <a href="https://github.com/Use-AIrs/use-ai.rs/blob/main/config_GBDT_example.json"><code>config_GBDT_example.json</code></a>.</li>
+<li><strong>Name</strong>: A name for the imported configuration.</li>
+</ul>
+</li>
+<li>After importing, load the imported configuration for use in the <strong>Start</strong> menu.</li>
+<li>Navigate to the <strong>Start</strong> menu.</li>
+<li>Select <strong>Init Transformation</strong> to transform the provided <code>test.csv</code>.</li>
+</ol>
+<h3 id="output"><a class="header" href="#output">Output:</a></h3>
+<p>The terminal will display a table representation of the transformed data, which is ready for downstream processing by the Operator.</p>
+<ul>
+<li><strong>Header Mapping</strong>: The headers are mapped appropriately.</li>
+<li><strong>String Records</strong>: Non-numerical string records are mapped to their numerical representation in the data.</li>
+</ul>
+<p>At this stage, the transformation demonstrates the data flow up to the lowest abstraction layer (<strong>Operator</strong>), which is not yet fully implemented.</p>
+<h2 id="future-plans"><a class="header" href="#future-plans">Future Plans</a></h2>
+<p>The next milestone in building the first complete data pipeline for Use-AI.rs is the development of a GPU-optimized GBDT algorithm for the Operator with Burn.</p>
+<h2 id="disclaimer"><a class="header" href="#disclaimer">Disclaimer</a></h2>
+<p>Today’s update introduces the first major structural decision for the project.<br />
+While the crate setup will remain as it is, individual functions and types may be reorganized in future iterations. However, all components will continue to follow a similar structural approach to what exists now.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="welcome-to-my-blog--11012025"><a class="header" href="#welcome-to-my-blog--11012025">Welcome to my blog | 11.01.2025</a></h1>
+<p>Since I am building this framework alongside my job, I have more time to think about the project than to actually work on it. Therefore, I decided to create something akin to a blog to provide insights into the thought processes behind the scene. The goal is to make sense of the sketches I’ve created and to develop a clearer understanding of future plans.</p>
+<h3 id="disclaimer-1"><a class="header" href="#disclaimer-1">Disclaimer:</a></h3>
+<p>Let’s call this a very pre-alpha stage. What this means is that not only do we not yet have a full picture of what features the final version will include, but we also haven’t finalized the naming of all structural components. To manage the complexity, I typically sketch out various structures and implement features in them to determine the optimal approach. This process won’t take too long, as I have already tested several ideas and have a good sense of the structure I want to adopt.</p>
+<h3 id="project-goal"><a class="header" href="#project-goal">Project Goal:</a></h3>
+<p>The goal of Use-AI.rs is to create an engaging framework for the practical use of AI in production.
+This can be summarized as: "An engaging framework for Deep Reinforcement Learning (DRL) and Ensembled Models (EM), implemented in Rust."
+I have chosen DRLs and EMs because, in my view, they are among the most practical tools for applications such as robotics, IoT, and economics. While there are existing solutions, the most convenient ones are often too dependent on external ecosystems, making them less appealing for production use. Others lack sufficient flexibility and engagement. By leveraging Rust, we aim to address these shortcomings and build a future-proof solution.</p>
+<h3 id="current-state"><a class="header" href="#current-state">Current State:</a></h3>
+<p>Currently, there is a JSON file called <a href="https://github.com/Use-AIrs/use-ai.rs/blob/main/crates/lib-model/ai_config_example.json">ai_config_example.json</a>, which represents the highest level of abstraction we aim to achieve. While the JSON is not fully refined yet, we will simplify its complexity for now. As features are implemented, we can reintroduce complexity as needed. However, the ultimate goal is to ensure that even simplified configurations will continue to work in future versions, allowing users to abstract functionality to their desired depth while maintaining compatibility with the framework's layers.
+The reason for a configuration file is to enable the implementation of complex DRL and EM algorithms without requiring direct modifications to the framework's code. Since DRLs and EMs are essentially combinations of mathematical and logical methods, the configuration file defines the operations that will be applied to input data.
+At this stage, the files <a href="https://github.com/Use-AIrs/use-ai.rs/blob/main/crates/lib-model/ai_config_example.json">ai_config_example.json</a> and <a href="https://github.com/Use-AIrs/use-ai.rs/blob/main/crates/lib-core/src/operator/data_raw_builder/data_from_csv.rs">data_from_csv.rs</a> provide a glimpse of what I aim to achieve in this regard.</p>
+<h3 id="future-plans-1"><a class="header" href="#future-plans-1">Future Plans:</a></h3>
+<p>The immediate goal is to reach the pre-alpha stage. Since I plan to update this project at least once a week, this stage should be reached relatively quickly, as I already have a clear idea of the necessary changes. In the near term, you can expect significant structural updates and renaming of components.
+Once these foundational changes are complete, the next step will be to introduce <a href="https://github.com/tracel-ai/burn">Burn</a>. Initially, Burn will be used for GPU tensor operations for neural networks and some DRL functionalities. However, since Burn does not yet cover everything needed for high-performance computing (HPC) in reinforcement learning, we will later introduce <a href="https://github.com/tracel-ai/cubecl">CubeCL</a> to build custom RL kernels for GPU hardware. Since Burn and CubeCL exist within the same ecosystem, this integration will allow us to create a robust and high-performance deep AI framework.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </div>
+    </body>
+</html>

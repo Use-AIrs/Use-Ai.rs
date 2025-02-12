@@ -1,6 +1,6 @@
 {
   "name": "first_model",
-  "version": "0.1_pre_alpha",
+  "version": "0.11_pre_alpha",
   "data": {
     "source": {
       "type": "csv",
@@ -19,7 +19,7 @@
     },
   "transformer": [
     {
-      "t_id": "t0",
+      "t_id": 0,
       "operation": "categories",
       "params": {
         "columns": [
@@ -32,7 +32,7 @@
   },
   "models": [
     {
-      "id": "m0",
+      "id": 0,
       "model_type": "GradientBoostedDecisionTree",
       "input_columns": [
         "header1",
@@ -47,9 +47,7 @@
         "learning_rate": 0.9,
         "max_depth": 5
       },
-      "output": {
-        "output_mode": "prediction"
-      }
+      "mode": "Train"
     }
   ],
   "output": {

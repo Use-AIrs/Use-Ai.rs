@@ -27,9 +27,9 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMax {
                 Err(CalcError::GpuError)
             }
         } else {
-            let sh = input.shape[0];
+            let sh = input.shape[1];
             let shape = [1, sh];
-            let strides = [sh, 1];
+            let strides = [1, sh];
             let output_handle = client.empty(sh * 4);
             let output = unsafe {
                 TensorHandleRef::<R>::from_raw_parts(&output_handle, &strides, &shape, 4)

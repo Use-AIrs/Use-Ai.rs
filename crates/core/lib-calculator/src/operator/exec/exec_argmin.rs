@@ -17,22 +17,31 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMin {
         if axis == 1 {
             let output_handle = client.empty(4);
             let output = unsafe {
-                TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
+                TensorHandleRef::<R>::from_raw_parts(
+                    &output_handle,
+                    &[1, 1],
+                    &[1, 1],
+                    4
+                )
             };
             let res = reduce::<R, f32, f32, ArgMin>(&client, input, output, axis, None);
-            println!("{:?}", res);
             if res.is_ok() {
                 Ok(output_handle)
             } else {
                 Err(CalcError::GpuError)
             }
         } else {
-            let sh = input.shape[0];
-            let shape = [1, sh];
-            let strides = [sh, 1];
-            let output_handle = client.empty(sh * 4);
+            let n = input.shape[1];
+            let shape = [1, n];
+            let strides = [1, n];
+            let output_handle = client.empty(n * 4);
             let output = unsafe {
-                TensorHandleRef::<R>::from_raw_parts(&output_handle, &strides, &shape, 4)
+                TensorHandleRef::<R>::from_raw_parts(
+                    &output_handle,
+                    &strides,
+                    &shape,
+                    4
+                )
             };
             reduce::<R, f32, f32, ArgMin>(&client, input, output, axis, None)?;
             Ok(output_handle)

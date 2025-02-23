@@ -67,8 +67,9 @@ pub fn operator(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #input
 
         impl<R: Runtime> Operator<R> for #struct_ident {
-            type Tuple<'a> = #ret_type;
-            fn tensor_refs<'a>(&'a self) -> #ret_type {
+            type Mem<'a> = #ret_type;
+
+            fn mem_rep<'a>(&'a self) -> Self::Mem<'a> {
                 #(#tensor_bindings)*
                 #ret_expr
             }

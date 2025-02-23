@@ -5,10 +5,12 @@
 //! For now, we just implement everything with pushes on the Cpu. But our approach will allow us to
 //! lower this mechanism completely into a Gpu kernel when introducing a counter and an allocator.
 
-use crate::operation::exec::base::PipelineExec;
-use crate::operation::push::base::PipelinePush;
+use crate::model::Operation;
+use crate::operator::exec::base::PipelineExec;
+use crate::operator::push::base::PipelinePush;
 use cubecl::channel::ComputeChannel;
 use cubecl::prelude::*;
+use cubecl::reduce::instructions::ArgAccumulator;
 use cubecl::reduce::*;
 
 pub mod error;
@@ -16,11 +18,11 @@ pub mod exec;
 pub mod push;
 
 pub trait Operator<R: Runtime> {
-    type Tuple<'a>
+    type Mem<'a>
     where
         Self: 'a;
 
-    fn tensor_refs<'a>(&'a self) -> Self::Tuple<'a>;
+    fn mem_rep<'a>(&'a self) -> Self::Mem<'a>;
 }
 
 pub trait Context {

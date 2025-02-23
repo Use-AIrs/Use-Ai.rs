@@ -1,7 +1,8 @@
 pub mod config;
 mod error;
 mod model;
-mod operation;
+mod operator;
+mod utils;
 
 use cubecl::prelude::*;
 use cubecl::reduce::Reduce;

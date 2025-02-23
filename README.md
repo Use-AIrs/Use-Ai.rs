@@ -8,7 +8,7 @@ We are working with a JSON configuration standard. This configuration file conta
 
 For production coding, we will focus on implementing reinforcement learning (RL) algorithms such as **Q-Learning** and **Deep Q-Networks**. Additionally, we plan to implement ensemble learning algorithms. In the first iteration, we will use **gradient-based decision trees (GBDT)**.
 
-To provide insights into our decision-making process and document early-stage changes, the maintainer is maintaining a small blog in the [discussions section](https://github.com/Use-AIrs/use-ai.rs/discussions).
+To provide insights into our decision-making process and document early-stage changes, the maintainer is maintaining a small blog on [The Hitchhiker's Guide to Use-AI.rs](https://use-airs.github.io/Use-Ai.rs/book/blog/index.html).
 
 
 ## Use AI Tool

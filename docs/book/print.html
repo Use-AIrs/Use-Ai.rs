@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>The AI User&#x27;s guide to Use-AI.rs</title>
+        <title>The Hitchhiker&#x27;s Guide to Use-AI.rs</title>
         <meta name="robots" content="noindex">
 
 
@@ -121,7 +121,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">The AI User&#x27;s guide to Use-AI.rs</h1>
+                    <h1 class="menu-title">The Hitchhiker&#x27;s Guide to Use-AI.rs</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -153,11 +153,11 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="welcome-to-the-new-blog"><a class="header" href="#welcome-to-the-new-blog">Welcome to the new Blog</a></h3>
-<p>As you may have noticed the new Blogs place will also will be used as entry place for the <em>Use-AI.rs</em> Documentation. This
-was decided due to the fact, that it's easier to maintain a good documentation within the codebase compared to an external
-Application. So, <strong>Welcome to the new Documentation!</strong> This blog will be useful to communicate changes and discuss
-development decisions for future users of the Framework.</p>
+                        <p>At Use-AI.rs, we are building an open-source AI framework in Rust.
+Our goal is to create a concurrent, locally hostable AI agent for practical applications in production environments.</p>
+<p>To achieve this goal, we are building on top of Burn and CubeCL.
+We are working with a JSON configuration standard. This configuration file contains all the information required to transform data and execute various AI operations. CubeCL provides us with the necessary operational tools to achieve our aim of delivering a practical AI framework.</p>
+<p>For production coding, we will focus on implementing reinforcement learning (RL) algorithms such as Q-Learning and Deep Q-Networks. Additionally, we plan to implement ensemble learning algorithms. In the first iteration, we will use gradient-based decision trees (GBDT).</p>
 <h4 id="work-in-progress"><a class="header" href="#work-in-progress">Work in Progress</a></h4>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="tooling"><a class="header" href="#tooling">Tooling</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="test-ai"><a class="header" href="#test-ai">Test AI</a></h1>
@@ -205,60 +205,24 @@ The functions as they are, will be renamed in near Future.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="data-input"><a class="header" href="#data-input">Data Input</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="transfer"><a class="header" href="#transfer">Transfer</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="data-output"><a class="header" href="#data-output">Data Output</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="calculator-and-proc-macros"><a class="header" href="#calculator-and-proc-macros"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-calculator">Calculator and Proc Macros</a></a></h2>
-<h3 id="current-3"><a class="header" href="#current-3">Current</a></h3>
-<p>Here we find the first structures of how the Gpu Backends will be called, build and executed.</p>
-<p><code>lib.rs</code> gives us the first structure which needs to be provided by stage.</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>pub struct MetaData {
-    pub stride: Box&lt;[usize]&gt;,
-    pub shape: Box&lt;[usize]&gt;,
-}
-<span class="boring">}</span></code></pre></pre>
-<p>Every array needed for the operation needs to be provided by <code>lib-stage</code> as <code>MetaData</code> and its <code>Vec&lt;f32&gt;</code> representation.</p>
-<ul>
-<li><code>pub fn build(stride: Box&lt;[usize]&gt;, shape: Box&lt;[usize]&gt;) -&gt; MetaData {...}</code>: Can be used to build <code>MetaData</code>.</li>
-<li><code>pub fn handle_empty&lt;R: Runtime&gt;(&amp;self) -&gt; (&amp;Self, Handle) {...}</code> builds a tuple containing <code>&amp;self</code> and a empty <code>Handle</code> of a gpu client.</li>
-<li><code>pub fn handle_from_vec&lt;R: Runtime&gt;(&amp;self, input: Vec&lt;f32&gt;) -&gt; (&amp;Self, Handle) {...}</code> builds a tuple containing <code>&amp;self</code> and a filled <code>Handle</code> of a gpu client.</li>
-</ul>
-<p><code>model</code>'s <code>mod.rs</code> contains the <code>Operation</code> trait.</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>pub trait Operation: Sized {
-    type Ctx;
-    type Operator;
-    type Output;
-
-    fn exec(ctx: Self::Ctx, operator: Self::Operator) -&gt; Self::Output;
-}
-<span class="boring">}</span></code></pre></pre>
-<p>Every <code>Operation</code> needs a <code>Ctx</code>, which can be implemented trough <code>#[ctx]</code> and an Operator which needs to be implemented
-trough <code>#[operator]</code>. The Operator macro allow us to build a <code>TensorHandleRef</code> tuple out of <code>GbdtHandle</code>'s which will be
-used to build the <code>Operation</code> on the GPUs Kernel.</p>
-<p>The Operators tuple is our representation of the Memory in the GPU. For now, <code>#[operator]</code> just builds an implementation
-over a structure like</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>pub struct GbdtOperator {
-    pub target: (MetaData, Handle),
-    pub table: (MetaData, Handle),
-    pub buffer: (MetaData, Handle),
-}
-<span class="boring">}</span></code></pre></pre>
-<p>to build a tuple of <code>TensorHandleRef&lt;R&gt;</code> which will be lowered with <a href="https://github.com/tracel-ai/cubecl">CubeCL</a> into
-the Kernel with a specific <code>Operation</code> which contains the needed Kernel of the Model.</p>
-<h3 id="future-3"><a class="header" href="#future-3">Future</a></h3>
-<p>In the future we will lower all implementations of <code>lib-calculator</code> into the GPU Kernel with CubeCL. The goal here is that
-we <code>lib-calculator</code> also can help with standardization in <code>lib-stage</code>.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="config-2"><a class="header" href="#config-2">Config</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="calculator"><a class="header" href="#calculator"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-calculator">Calculator</a></a></h1>
+<p>In <code>lib-calculator</code> the most crucial parts are the module <code>model</code> and the <code>operator</code>.
+In <code>model</code> we can easily build models within the <code>operation</code> trait which are supported by the <code>opertator</code> module and trait.
+So, the <code>operator</code> provides functions through the <code>PipelineExec</code> and <code>PipelinePush</code> traits.
+The <code>operator</code> will be executed on the GPUs Kernel.
+Every <code>model</code> needs to implement the <code>Operation</code> trait</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="model"><a class="header" href="#model">Model</a></h1>
+<p>When you want to integrate a new <code>model</code> you can do that by doing these three things:</p>
+<ol>
+<li>Build a struct which includes tuples of <code>MetaData</code> and <code>Handle</code>. This structure is our abstract representation of the shared memory on the GPU. The macro <code> #[operator]</code> above your struct will allocate a <code>Tensor</code> on the GPU and leave you a <code>TensorHandelRef</code> to work with in the <code>operation</code></li>
+</ol>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="operation"><a class="header" href="#operation">Operation</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="welcome-dev"><a class="header" href="#welcome-dev">Welcome, Dev!</a></h1>
 <p>Here you can find the Blog of <em>Use-AI.rs</em>. Here Developers who are currently actively Developing <em>Use-AI.rs</em> make technical
 discussions of the current state of <em>Use-AI.rs</em>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="new-blog-and-doc-updates"><a class="header" href="#new-blog-and-doc-updates">New Blog and Doc Updates</a></h1>
 <h2 id="maintainers-comment--03022025"><a class="header" href="#maintainers-comment--03022025">Maintainer's Comment | 03.02.2025</a></h2>
-<h3 id="welcome-to-the-new-blog-1"><a class="header" href="#welcome-to-the-new-blog-1">Welcome to the new Blog</a></h3>
+<h3 id="welcome-to-the-new-blog"><a class="header" href="#welcome-to-the-new-blog">Welcome to the new Blog</a></h3>
 <p>As you may have noticed the new Blogs place will also will be used as entry place for the <em>Use-AI.rs</em> Documentation. This
 was decided due to the fact, that it's easier to maintain a good documentation within the codebase compared to an external
 Application. So, <strong>Welcome to the new Documentation!</strong> This blog will be useful to communicate changes and discuss
@@ -268,18 +232,18 @@ development decisions for future users of the Framework.</p>
 used in Use-AI.rs down to the lowest abstraction layers. This represents the architecture chosen.
 These discussions will also be used in the Book to introduce the idea of each component.</p>
 <h3 id="use-ai-1"><a class="header" href="#use-ai-1"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/use-ai">Use-AI</a></a></h3>
-<h4 id="current-4"><a class="header" href="#current-4">Current</a></h4>
+<h4 id="current-3"><a class="header" href="#current-3">Current</a></h4>
 <p><em>Use-AI</em> is just a basic cli tool written with <a href="https://github.com/mikaelmello/inquire">Inquire</a>. Inquire is used since
 we just want to have a nice little entry point for People who doesn't now the project and want to find out what with data
 can be done with <em>Use-AI.rs</em>. Also, Inquire provides an interface which allows you to easily find the underlying functions
 so you have an example of how Use-AI.rs can be used in production.</p>
-<h4 id="future-4"><a class="header" href="#future-4">Future</a></h4>
+<h4 id="future-3"><a class="header" href="#future-3">Future</a></h4>
 <p>The Use-AI Tool is just the first tool we want to provide. In Future the goal is to provide a hole Network Server Layer.
 For the Server layer we are thinking about a TCP Server. The Server should provide a load test tool for a hypothetical
 Query Server. But since this is a plan in far future these are only idea's. When someone I found who can implement something
 like that it may be implemented in parallel.</p>
 <h3 id="store-1"><a class="header" href="#store-1"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-store">Store</a></a></h3>
-<h4 id="current-5"><a class="header" href="#current-5">Current</a></h4>
+<h4 id="current-4"><a class="header" href="#current-4">Current</a></h4>
 <p><code>lib-store</code> is the first library of the Core of <em>Use-AI.es</em>. Here we find <code>ai_config.rs</code> and <code>mangodb.rs</code>.</p>
 <p><code>ai_config.rs</code>, is the entrypoint for the configuration file.</p>
 <ul>
@@ -290,23 +254,23 @@ like that it may be implemented in parallel.</p>
 Since we expect this Db to run on a system what also handles our data in parallel on the cpu and
 since we don't have to worry about huge db requests it is decided that we only communicate
 synchronised with the Db so we don't spawn threads that block building threads of performance critical features.</p>
-<h4 id="future-5"><a class="header" href="#future-5">Future</a></h4>
+<h4 id="future-4"><a class="header" href="#future-4">Future</a></h4>
 <p>Not much will happen here. Only when the Config is expanded we will see some changes here. Some additional Db request
 functions and some functions regarding Configs will be added here when needed.</p>
 <h3 id="stage-1"><a class="header" href="#stage-1"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-stage">Stage</a></a></h3>
-<h4 id="current-6"><a class="header" href="#current-6">Current</a></h4>
+<h4 id="current-5"><a class="header" href="#current-5">Current</a></h4>
 <p>Here is where the construction site begins. Currently, we only have a CSV pipeline to show what the plan is with <code>lib-stager</code>.
 This pipeline shows how we want to handle data on a more abstract layer. For now, we just input some csv file and handle
 it from there with different operations on columns or the hole data. This is chosen because we want to reach a first complete
 pass through <em>Use-AI.rs</em> using a simple XGBoost algorithm for now. Till we expanded that simple XGBoost it's called GBDT here.</p>
-<h4 id="future-6"><a class="header" href="#future-6">Future</a></h4>
+<h4 id="future-5"><a class="header" href="#future-5">Future</a></h4>
 <p>For DQNs and Q-learning we need to expand <code>lib-stage</code>. Goal is not to only use files instead this will be used to Configure
 a Data Stream which first, will enable the possibility to get Input from program external drivers and also, will add the
 possibility for communication between models. But to be able to implement such features we first need to focus on the
 <code>lib-calculator</code>.
 The functions as they are, will be renamed in near Future.</p>
-<h3 id="calculator-and-proc-macros-1"><a class="header" href="#calculator-and-proc-macros-1"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-calculator">Calculator and Proc Macros</a></a></h3>
-<h4 id="current-7"><a class="header" href="#current-7">Current</a></h4>
+<h3 id="calculator-and-proc-macros"><a class="header" href="#calculator-and-proc-macros"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-calculator">Calculator and Proc Macros</a></a></h3>
+<h4 id="current-6"><a class="header" href="#current-6">Current</a></h4>
 <p>Here we find the first structures of how the Gpu Backends will be called, build and executed.</p>
 <p><code>lib.rs</code> gives us the first structure which needs to be provided by stage.</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
@@ -348,7 +312,7 @@ over a structure like</p>
 <span class="boring">}</span></code></pre></pre>
 <p>to build a tuple of <code>TensorHandleRef&lt;R&gt;</code> which will be lowered with <a href="https://github.com/tracel-ai/cubecl">CubeCL</a> into
 the Kernel with a specific <code>Operation</code> which contains the needed Kernel of the Model.</p>
-<h4 id="future-7"><a class="header" href="#future-7">Future</a></h4>
+<h4 id="future-6"><a class="header" href="#future-6">Future</a></h4>
 <p>In the future we will lower all implementations of <code>lib-calculator</code> into the GPU Kernel with CubeCL. The goal here is that
 we <code>lib-calculator</code> also can help with standardization in <code>lib-stage</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="gpu-optimized-gbdt-with-cubecl-a-step-towards-xgboost--25012025"><a class="header" href="#gpu-optimized-gbdt-with-cubecl-a-step-towards-xgboost--25012025">GPU-Optimized GBDT with CubeCL: A Step Towards XGBoost | 25.01.2025</a></h1>
@@ -423,6 +387,22 @@ Once these foundational changes are complete, the next step will be to introduce
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

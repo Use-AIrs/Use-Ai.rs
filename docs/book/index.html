@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Introduction - The AI User&#x27;s guide to Use-AI.rs</title>
+        <title>Introduction - The Hitchhiker&#x27;s Guide to Use-AI.rs</title>
 
 
         <!-- Custom HTML head -->
@@ -120,7 +120,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">The AI User&#x27;s guide to Use-AI.rs</h1>
+                    <h1 class="menu-title">The Hitchhiker&#x27;s Guide to Use-AI.rs</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -152,11 +152,11 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="welcome-to-the-new-blog"><a class="header" href="#welcome-to-the-new-blog">Welcome to the new Blog</a></h3>
-<p>As you may have noticed the new Blogs place will also will be used as entry place for the <em>Use-AI.rs</em> Documentation. This
-was decided due to the fact, that it's easier to maintain a good documentation within the codebase compared to an external
-Application. So, <strong>Welcome to the new Documentation!</strong> This blog will be useful to communicate changes and discuss
-development decisions for future users of the Framework.</p>
+                        <p>At Use-AI.rs, we are building an open-source AI framework in Rust.
+Our goal is to create a concurrent, locally hostable AI agent for practical applications in production environments.</p>
+<p>To achieve this goal, we are building on top of Burn and CubeCL.
+We are working with a JSON configuration standard. This configuration file contains all the information required to transform data and execute various AI operations. CubeCL provides us with the necessary operational tools to achieve our aim of delivering a practical AI framework.</p>
+<p>For production coding, we will focus on implementing reinforcement learning (RL) algorithms such as Q-Learning and Deep Q-Networks. Additionally, we plan to implement ensemble learning algorithms. In the first iteration, we will use gradient-based decision trees (GBDT).</p>
 <h4 id="work-in-progress"><a class="header" href="#work-in-progress">Work in Progress</a></h4>
 
                     </main>
@@ -182,6 +182,22 @@ development decisions for future users of the Framework.</p>
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

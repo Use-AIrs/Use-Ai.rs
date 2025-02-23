@@ -18,15 +18,15 @@ pub mod exec;
 pub mod push;
 
 pub trait Operator<R: Runtime> {
-    type Mem<'a>
-    where
-        Self: 'a;
+	type Mem<'a>
+	where
+		Self: 'a;
 
-    fn mem_rep<'a>(&'a self) -> Self::Mem<'a>;
+	fn mem_rep<'a>(&'a self) -> Self::Mem<'a>;
 }
 
 pub trait Context {
-    type Tuple;
+	type Tuple;
 
-    fn ctx_ref(&self) -> Self::Tuple;
+	fn ctx_ref(&self) -> Self::Tuple;
 }

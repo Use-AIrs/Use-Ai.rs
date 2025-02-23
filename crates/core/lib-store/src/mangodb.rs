@@ -1,68 +1,84 @@
 use mongodb::bson::{doc, Document};
 use mongodb::{
-    bson,
-    sync::{Client, Collection},
+	bson,
+	sync::{Client, Collection},
 };
 
 use crate::ai_config::Config;
 use crate::error::{Result, StagingError};
 
-pub fn config_from_file(path: String, name: String) -> Result<()> {
-    let client = connect()?;
-    let collection = client.database("use-ai").collection("configs");
-    let config = Config::get_config(path)?;
-    let mut doc = bson::to_document(&config).unwrap();
-    doc.insert("name", name);
-    doc.insert("active", false);
+pub fn config_from_file(
+	path: String,
+	name: String,
+) -> Result<()> {
+	let client = connect()?;
+	let collection = client.database("use-ai").collection("configs");
+	let config = Config::get_config(path)?;
+	let mut doc = bson::to_document(&config).unwrap();
+	doc.insert(
+		"name", name,
+	);
+	doc.insert(
+		"active", false,
+	);
 
-    let result = collection.insert_one(doc).run()?;
-    println!("Inserted a document with _id: {}", result.inserted_id);
-    Ok(())
+	let result = collection.insert_one(doc).run()?;
+	println!(
+		"Inserted a document with _id: {}",
+		result.inserted_id
+	);
+	Ok(())
 }
 
 pub fn list_configs() -> Result<Vec<String>> {
-    let client = connect()?;
-    let collection: Collection<Document> = client.database("use-ai").collection("configs");
+	let client = connect()?;
+	let collection: Collection<Document> = client.database("use-ai").collection("configs");
 
-    let cursor = collection.find(Default::default()).run()?;
+	let cursor = collection.find(Default::default()).run()?;
 
-    let list = cursor
-        .into_iter()
-        .filter_map(|doc_result| doc_result.ok())
-        .map(|doc| doc.get_str("name").unwrap().to_string())
-        .collect::<Vec<String>>();
+	let list = cursor
+		.into_iter()
+		.filter_map(|doc_result| doc_result.ok())
+		.map(|doc| doc.get_str("name").unwrap().to_string())
+		.collect::<Vec<String>>();
 
-    Ok(list)
+	Ok(list)
 }
 
 pub fn activate_config(name: String) -> Result<()> {
-    let client = connect()?;
+	let client = connect()?;
 
-    let collection: Collection<Document> = client.database("use-ai").collection("configs");
+	let collection: Collection<Document> = client.database("use-ai").collection("configs");
 
-    collection
-        .update_many(doc! {}, doc! { "$set": { "active": false } })
-        .run()?;
+	collection
+		.update_many(
+			doc! {},
+			doc! { "$set": { "active": false } },
+		)
+		.run()?;
 
-    collection
-        .update_one(doc! { "name": name }, doc! { "$set": { "active": true } })
-        .run()?;
+	collection
+		.update_one(
+			doc! { "name": name },
+			doc! { "$set": { "active": true } },
+		)
+		.run()?;
 
-    Ok(())
+	Ok(())
 }
 
 pub fn get_active_config() -> Result<Config> {
-    let client = connect()?;
-    let collection: Collection<Config> = client.database("use-ai").collection("configs");
-    let cursor = collection.find_one(doc! { "active": true }).run()?;
-    match cursor {
-        Some(config) => Ok(config),
-        None => Err(StagingError::NoConfigActive),
-    }
+	let client = connect()?;
+	let collection: Collection<Config> = client.database("use-ai").collection("configs");
+	let cursor = collection.find_one(doc! { "active": true }).run()?;
+	match cursor {
+		Some(config) => Ok(config),
+		None => Err(StagingError::NoConfigActive),
+	}
 }
 
 fn connect() -> Result<Client> {
-    let uri = "mongodb://127.0.0.1:27017/";
-    let client = Client::with_uri_str(uri)?;
-    Ok(client)
+	let uri = "mongodb://127.0.0.1:27017/";
+	let client = Client::with_uri_str(uri)?;
+	Ok(client)
 }

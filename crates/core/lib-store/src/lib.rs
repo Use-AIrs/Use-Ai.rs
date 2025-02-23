@@ -7,7 +7,7 @@ pub mod error;
 pub mod mangodb;
 
 pub fn init_transformation() -> Result<()> {
-    let config = get_active_config()?;
-    let _ = transformer(config.data);
-    Ok(())
+	let config = get_active_config()?;
+	let _ = transformer(config.data);
+	Ok(())
 }

@@ -48,7 +48,6 @@ pub struct DecisionTree {
     root: TreeNode,
 }
 
-
 #[derive(Debug, Clone)]
 pub struct TreeNode {
     split_feature: Option<usize>,
@@ -59,7 +58,6 @@ pub struct TreeNode {
 }
 
 impl TreeNode {
-
     fn new_leaf(value: f64) -> Self {
         TreeNode {
             split_feature: None,

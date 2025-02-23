@@ -1,11 +1,11 @@
-use std::marker::PhantomData;
-use cubecl::ir::{ConstantScalarValue, UIntKind};
-use cubecl::ir::VariableKind::ConstantScalar;
 use crate::error::{CalcError, Result};
 use crate::operator::push::base::PipelinePush;
 use crate::MetaData;
+use cubecl::ir::VariableKind::ConstantScalar;
+use cubecl::ir::{ConstantScalarValue, UIntKind};
 use cubecl::prelude::*;
 use cubecl::server::Handle;
+use std::marker::PhantomData;
 /*
 pub struct PrepResiduals<R: Runtime> {
     _res: PhantomData<R>,

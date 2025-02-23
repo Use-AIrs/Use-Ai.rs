@@ -1,7 +1,5 @@
 #[cfg(test)]
 mod tests {
-    use std::time::Instant;
-    use rand::Rng;
     use crate::error::Result;
     use crate::operator::exec::base::PipelineExec;
     use crate::operator::exec::exec_argmax::ExecArgMax;
@@ -14,7 +12,8 @@ mod tests {
     use cubecl::server::Handle;
     use cubecl::wgpu::WgpuRuntime;
     use cubecl::CubeElement;
-
+    use rand::Rng;
+    use std::time::Instant;
 
     fn create_random_vector(
         client: &ComputeClient<<WgpuRuntime as Runtime>::Server, <WgpuRuntime as Runtime>::Channel>,
@@ -26,14 +25,7 @@ mod tests {
         let data: Vec<f32> = (0..len).map(|_| rng.gen()).collect();
         let handle = client.create(f32::as_bytes(&data));
         let static_handle: &'static Handle = Box::leak(Box::new(handle));
-        unsafe {
-            TensorHandleRef::from_raw_parts(
-                static_handle,
-                stride,
-                shape,
-                data.len()
-            )
-        }
+        unsafe { TensorHandleRef::from_raw_parts(static_handle, stride, shape, data.len()) }
     }
 
     fn create_random_matrix(
@@ -46,14 +38,7 @@ mod tests {
         let data: Vec<f32> = (0..total).map(|_| rng.gen()).collect();
         let handle = client.create(f32::as_bytes(&data));
         let static_handle: &'static Handle = Box::leak(Box::new(handle));
-        unsafe {
-            TensorHandleRef::from_raw_parts(
-                static_handle,
-                stride,
-                shape,
-                total
-            )
-        }
+        unsafe { TensorHandleRef::from_raw_parts(static_handle, stride, shape, total) }
     }
 
     #[test]
@@ -69,7 +54,10 @@ mod tests {
         let bytes = client.read_one(binding);
         let output_values = f32::from_bytes(&bytes);
         let elapsed = start.elapsed();
-        println!("ExecMean (Vector) Output: {:?}, Time: {:?}", output_values, elapsed);
+        println!(
+            "ExecMean (Vector) Output: {:?}, Time: {:?}",
+            output_values, elapsed
+        );
         Ok(())
     }
 
@@ -86,7 +74,10 @@ mod tests {
         let bytes = client.read_one(binding);
         let output_values = f32::from_bytes(&bytes);
         let elapsed = start.elapsed();
-        println!("ExecArgMin (Vector) Output: {:?}, Time: {:?}", output_values, elapsed);
+        println!(
+            "ExecArgMin (Vector) Output: {:?}, Time: {:?}",
+            output_values, elapsed
+        );
         Ok(())
     }
 
@@ -103,7 +94,10 @@ mod tests {
         let bytes = client.read_one(binding);
         let output_values = f32::from_bytes(&bytes);
         let elapsed = start.elapsed();
-        println!("ExecArgMax (Vector) Output: {:?}, Time: {:?}", output_values, elapsed);
+        println!(
+            "ExecArgMax (Vector) Output: {:?}, Time: {:?}  Undefined behavior",
+            output_values, elapsed
+        );
         Ok(())
     }
 
@@ -120,7 +114,10 @@ mod tests {
         let bytes = client.read_one(binding);
         let output_values = f32::from_bytes(&bytes);
         let elapsed = start.elapsed();
-        println!("ExecProd (Vector) Output: {:?}, Time: {:?}", output_values, elapsed);
+        println!(
+            "ExecProd (Vector) Output: {:?}, Time: {:?}",
+            output_values, elapsed
+        );
         Ok(())
     }
 
@@ -137,7 +134,10 @@ mod tests {
         let bytes = client.read_one(binding);
         let output_values = f32::from_bytes(&bytes);
         let elapsed = start.elapsed();
-        println!("ExecSum (Vector) Output: {:?}, Time: {:?}", output_values, elapsed);
+        println!(
+            "ExecSum (Vector) Output: {:?}, Time: {:?}",
+            output_values, elapsed
+        );
         Ok(())
     }
 
@@ -153,7 +153,10 @@ mod tests {
         let bytes = client.read_one(binding);
         let output_values = f32::from_bytes(&bytes);
         let elapsed = start.elapsed();
-        println!("ExecMean (Matrix) Output: {:?}, Time: {:?}", output_values, elapsed);
+        println!(
+            "ExecMean (Matrix) Output: {:?}, Time: {:?}",
+            output_values, elapsed
+        );
         Ok(())
     }
 
@@ -169,7 +172,10 @@ mod tests {
         let bytes = client.read_one(binding);
         let output_values = f32::from_bytes(&bytes);
         let elapsed = start.elapsed();
-        println!("ExecArgMin (Matrix) Output: {:?}, Time: {:?} Undefined behavior", output_values, elapsed);
+        println!(
+            "ExecArgMin (Matrix) Output: {:?}, Time: {:?}",
+            output_values, elapsed
+        );
         Ok(())
     }
 
@@ -185,7 +191,10 @@ mod tests {
         let bytes = client.read_one(binding);
         let output_values = f32::from_bytes(&bytes);
         let elapsed = start.elapsed();
-        println!("ExecArgMax (Matrix) Output: {:?}, Time: {:?} Undefined behavior", output_values, elapsed);
+        println!(
+            "ExecArgMax (Matrix) Output: {:?}, Time: {:?}",
+            output_values, elapsed
+        );
         Ok(())
     }
 
@@ -201,7 +210,10 @@ mod tests {
         let bytes = client.read_one(binding);
         let output_values = f32::from_bytes(&bytes);
         let elapsed = start.elapsed();
-        println!("ExecProd (Matrix) Output: {:?}, Time: {:?}", output_values, elapsed);
+        println!(
+            "ExecProd (Matrix) Output: {:?}, Time: {:?}",
+            output_values, elapsed
+        );
         Ok(())
     }
 
@@ -217,7 +229,10 @@ mod tests {
         let bytes = client.read_one(binding);
         let output_values = f32::from_bytes(&bytes);
         let elapsed = start.elapsed();
-        println!("ExecSum (Matrix) Output: {:?}, Time: {:?}", output_values, elapsed);
+        println!(
+            "ExecSum (Matrix) Output: {:?}, Time: {:?}",
+            output_values, elapsed
+        );
         Ok(())
     }
 }

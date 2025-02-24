@@ -211,15 +211,22 @@ In <code>model</code> we can easily build models within the <code>operation</cod
 So, the <code>operator</code> provides functions through the <code>PipelineExec</code> and <code>PipelinePush</code> traits.
 The <code>operator</code> will be executed on the GPUs Kernel.
 Every <code>model</code> needs to implement the <code>Operation</code> trait</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="model"><a class="header" href="#model">Model</a></h1>
-<p>When you want to integrate a new <code>model</code> you can do that by doing these three things:</p>
-<ol>
-<li>Build a struct which includes tuples of <code>MetaData</code> and <code>Handle</code>. This structure is our abstract representation of the shared memory on the GPU. The macro <code> #[operator]</code> above your struct will allocate a <code>Tensor</code> on the GPU and leave you a <code>TensorHandelRef</code> to work with in the <code>operation</code></li>
-</ol>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="config-2"><a class="header" href="#config-2">Config</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="operation"><a class="header" href="#operation">Operation</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="welcome-dev"><a class="header" href="#welcome-dev">Welcome, Dev!</a></h1>
 <p>Here you can find the Blog of <em>Use-AI.rs</em>. Here Developers who are currently actively Developing <em>Use-AI.rs</em> make technical
 discussions of the current state of <em>Use-AI.rs</em>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="short-update"><a class="header" href="#short-update">Short Update</a></h1>
+<h2 id="maintainers-comment--12022025"><a class="header" href="#maintainers-comment--12022025">Maintainer's Comment | 12.02.2025</a></h2>
+<p>On the weekend I have Implemented the first <code>PipelineExec</code> to show how we want to use <code>cubecl-reduce</code> for the first Iteration of Use-AI.rs.
+In the future we want to build our own reduce strategies and configurations. But this will be good enough for now.
+With <code>PipelinePush</code> we will see the first Kernels which fill Tensors depending on the type of <code>PipelinePush</code> needed for Future execution trough <code>PipelineExec</code>.
+With these reusable Pipeline Operations we can easily compose different AI Models with GPU Optimisation.
+This most likely implicates, that we are no longer aim to lower all of <code>lib-calculator</code> into the GPU. More likely <code>lib-calculator::operation</code> will be the
+only module what will be completely on the GPU Kernel.</p>
+<p>Apart from this I decided this week to use <a href="https://arxiv.org/abs/1603.02754">XGBoost: A Scalable Tree Boosting System</a> (Tianqi Chen and Carlos Guestrin, 10. Jun 2016) as the paper
+which will lead us in implementing XGBoost.</p>
+<p>Next week we will see more code again!</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="new-blog-and-doc-updates"><a class="header" href="#new-blog-and-doc-updates">New Blog and Doc Updates</a></h1>
 <h2 id="maintainers-comment--03022025"><a class="header" href="#maintainers-comment--03022025">Maintainer's Comment | 03.02.2025</a></h2>
 <h3 id="welcome-to-the-new-blog"><a class="header" href="#welcome-to-the-new-blog">Welcome to the new Blog</a></h3>
@@ -387,22 +394,6 @@ Once these foundational changes are complete, the next step will be to introduce
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 

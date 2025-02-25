@@ -12,11 +12,7 @@ impl<T> RawTable<T> {
 		let scheme = data.scheme.clone().unwrap();
 		let header = scheme.columns;
 
-		Ok(
-			build(
-				path, header,
-			)?,
-		)
+		Ok(build(path, header)?)
 	}
 }
 
@@ -36,38 +32,22 @@ pub fn build(
 	input: Option<Vec<String>>,
 ) -> Result<RawTable<String>> {
 	let records = string_records(path)?;
-	println!(
-		"{:?}",
-		input
-	);
-	let header = input.map(
-		|header_vec| {
-			header_vec
-				.into_iter()
-				.enumerate()
-				.map(
-					|(index, value)| {
-						(
-							value, index,
-						)
-					},
-				)
-				.collect::<HashMap<String, usize>>()
-		},
-	);
-	println!(
-		"{:?}",
-		header
-	);
+	println!("{:?}", input);
+	let header = input.map(|header_vec| {
+		header_vec
+			.into_iter()
+			.enumerate()
+			.map(|(index, value)| (value, index))
+			.collect::<HashMap<String, usize>>()
+	});
+	println!("{:?}", header);
 
 	let processed: Vec<Array1<String>> = records
 		.par_iter()
-		.map(
-			|record| {
-				let parsed: Vec<String> = record.iter().map(|field| field.to_string()).collect();
-				Ok(Array1::from(parsed))
-			},
-		)
+		.map(|record| {
+			let parsed: Vec<String> = record.iter().map(|field| field.to_string()).collect();
+			Ok(Array1::from(parsed))
+		})
 		.collect::<Result<Vec<Array1<String>>>>()?;
 
 	let combined: Array2<String> = stack(
@@ -76,11 +56,9 @@ pub fn build(
 	)
 	.map_err(|e| TransformerError::ShapingError(e))?;
 
-	Ok(
-		RawTable {
-			header,
-			data: combined,
-			map: None,
-		},
-	)
+	Ok(RawTable {
+		header,
+		data: combined,
+		map: None,
+	})
 }

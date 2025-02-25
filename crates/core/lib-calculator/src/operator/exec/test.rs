@@ -61,14 +61,9 @@ mod tests {
 		let len = 1000;
 		let shape = Box::leak(Box::new([1, len]));
 		let stride = Box::leak(Box::new([1, 1]));
-		let dummy_tensor = create_random_vector(
-			&client, len, shape, stride,
-		);
+		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 		let start = Instant::now();
-		let output_handle = ExecMean::exec(
-			dummy_tensor,
-			&client,
-		)?;
+		let output_handle = ExecMean::exec(dummy_tensor, &client)?;
 		let binding = output_handle.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
@@ -86,14 +81,9 @@ mod tests {
 		let len = 1000;
 		let shape = Box::leak(Box::new([1, len]));
 		let stride = Box::leak(Box::new([1, 1]));
-		let dummy_tensor = create_random_vector(
-			&client, len, shape, stride,
-		);
+		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 		let start = Instant::now();
-		let output_handle = ExecArgMin::exec(
-			dummy_tensor,
-			&client,
-		)?;
+		let output_handle = ExecArgMin::exec(dummy_tensor, &client)?;
 		let binding = output_handle.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
@@ -111,14 +101,9 @@ mod tests {
 		let len = 1000;
 		let shape = Box::leak(Box::new([1, len]));
 		let stride = Box::leak(Box::new([1, 1]));
-		let dummy_tensor = create_random_vector(
-			&client, len, shape, stride,
-		);
+		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 		let start = Instant::now();
-		let output_handle = ExecArgMax::exec(
-			dummy_tensor,
-			&client,
-		)?;
+		let output_handle = ExecArgMax::exec(dummy_tensor, &client)?;
 		let binding = output_handle.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
@@ -136,14 +121,9 @@ mod tests {
 		let len = 100000000;
 		let shape = Box::leak(Box::new([1, len]));
 		let stride = Box::leak(Box::new([1, 1]));
-		let dummy_tensor = create_random_vector(
-			&client, len, shape, stride,
-		);
+		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 		let start = Instant::now();
-		let output_handle = ExecProd::exec(
-			dummy_tensor,
-			&client,
-		)?;
+		let output_handle = ExecProd::exec(dummy_tensor, &client)?;
 		let binding = output_handle.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
@@ -161,14 +141,9 @@ mod tests {
 		let len = 1000;
 		let shape = Box::leak(Box::new([1, len]));
 		let stride = Box::leak(Box::new([1, 1]));
-		let dummy_tensor = create_random_vector(
-			&client, len, shape, stride,
-		);
+		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 		let start = Instant::now();
-		let output_handle = ExecSum::exec(
-			dummy_tensor,
-			&client,
-		)?;
+		let output_handle = ExecSum::exec(dummy_tensor, &client)?;
 		let binding = output_handle.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
@@ -185,14 +160,9 @@ mod tests {
 		let client = WgpuRuntime::client(&Default::default());
 		let shape = Box::leak(Box::new([25, 40]));
 		let stride = Box::leak(Box::new([40, 1]));
-		let dummy_tensor = create_random_matrix(
-			&client, shape, stride,
-		);
+		let dummy_tensor = create_random_matrix(&client, shape, stride);
 		let start = Instant::now();
-		let output_handle = ExecMean::exec(
-			dummy_tensor,
-			&client,
-		)?;
+		let output_handle = ExecMean::exec(dummy_tensor, &client)?;
 		let binding = output_handle.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
@@ -209,14 +179,9 @@ mod tests {
 		let client = WgpuRuntime::client(&Default::default());
 		let shape = Box::leak(Box::new([25, 40]));
 		let stride = Box::leak(Box::new([40, 1]));
-		let dummy_tensor = create_random_matrix(
-			&client, shape, stride,
-		);
+		let dummy_tensor = create_random_matrix(&client, shape, stride);
 		let start = Instant::now();
-		let output_handle = ExecArgMin::exec(
-			dummy_tensor,
-			&client,
-		)?;
+		let output_handle = ExecArgMin::exec(dummy_tensor, &client)?;
 		let binding = output_handle.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
@@ -233,14 +198,9 @@ mod tests {
 		let client = WgpuRuntime::client(&Default::default());
 		let shape = Box::leak(Box::new([25, 40]));
 		let stride = Box::leak(Box::new([40, 1]));
-		let dummy_tensor = create_random_matrix(
-			&client, shape, stride,
-		);
+		let dummy_tensor = create_random_matrix(&client, shape, stride);
 		let start = Instant::now();
-		let output_handle = ExecArgMax::exec(
-			dummy_tensor,
-			&client,
-		)?;
+		let output_handle = ExecArgMax::exec(dummy_tensor, &client)?;
 		let binding = output_handle.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
@@ -257,14 +217,9 @@ mod tests {
 		let client = WgpuRuntime::client(&Default::default());
 		let shape = Box::leak(Box::new([25, 40]));
 		let stride = Box::leak(Box::new([40, 1]));
-		let dummy_tensor = create_random_matrix(
-			&client, shape, stride,
-		);
+		let dummy_tensor = create_random_matrix(&client, shape, stride);
 		let start = Instant::now();
-		let output_handle = ExecProd::exec(
-			dummy_tensor,
-			&client,
-		)?;
+		let output_handle = ExecProd::exec(dummy_tensor, &client)?;
 		let binding = output_handle.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
@@ -281,14 +236,9 @@ mod tests {
 		let client = WgpuRuntime::client(&Default::default());
 		let shape = Box::leak(Box::new([25, 40]));
 		let stride = Box::leak(Box::new([40, 1]));
-		let dummy_tensor = create_random_matrix(
-			&client, shape, stride,
-		);
+		let dummy_tensor = create_random_matrix(&client, shape, stride);
 		let start = Instant::now();
-		let output_handle = ExecSum::exec(
-			dummy_tensor,
-			&client,
-		)?;
+		let output_handle = ExecSum::exec(dummy_tensor, &client)?;
 		let binding = output_handle.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);

@@ -15,18 +15,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug)]
 #[operator]
 pub struct GbdtOperator {
-	pub target: (
-		MetaData,
-		Handle,
-	),
-	pub table: (
-		MetaData,
-		Handle,
-	),
-	pub buffer: (
-		MetaData,
-		Handle,
-	),
+	pub target: (MetaData, Handle),
+	pub table: (MetaData, Handle),
+	pub buffer: (MetaData, Handle),
 }
 
 #[derive(Debug, Serialize, Deserialize)]

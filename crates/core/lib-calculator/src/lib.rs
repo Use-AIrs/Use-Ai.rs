@@ -23,33 +23,21 @@ impl MetaData {
 	) -> MetaData {
 		MetaData { stride, shape }
 	}
-	pub fn handle_empty<R: Runtime>(
-		&self
-	) -> (
-		&Self,
-		Handle,
-	) {
+	pub fn handle_empty<R: Runtime>(&self) -> (&Self, Handle) {
 		let client = R::client(&Default::default());
 		let size_f32 = std::mem::size_of::<f32>();
 		let size = &self.shape.iter().product::<usize>() * size_f32;
 		let handle = client.empty(size);
-		(
-			self, handle,
-		)
+		(self, handle)
 	}
 	pub fn handle_from_vec<R: Runtime>(
 		&self,
 		input: Vec<f32>,
-	) -> (
-		&Self,
-		Handle,
-	) {
+	) -> (&Self, Handle) {
 		let client = R::client(&Default::default());
 		let put = input.as_slice();
 		let handle = client.create(f32::as_bytes(put));
-		(
-			self, handle,
-		)
+		(self, handle)
 	}
 }
 
@@ -60,16 +48,10 @@ mod test {
 	use cubecl::wgpu::WgpuRuntime;
 	#[test]
 	fn md_test_empty() {
-		let md = MetaData::build(
-			Box::new([1]),
-			Box::new([1]),
-		);
+		let md = MetaData::build(Box::new([1]), Box::new([1]));
 		let (meta, handle) = MetaData::handle_empty::<WgpuRuntime>(&md);
 		let len = handle.size();
-		assert_eq!(
-			len,
-			4
-		);
+		assert_eq!(len, 4);
 	}
 	#[test]
 	fn md_test_vec() {
@@ -77,14 +59,9 @@ mod test {
 			Box::new([2, 2]),
 			Box::new([2, 1]),
 		);
-		let (meta, handle) = MetaData::handle_from_vec::<WgpuRuntime>(
-			&md,
-			vec![1.0, 2.0, 3.0, 4.0],
-		);
+		let (meta, handle) =
+			MetaData::handle_from_vec::<WgpuRuntime>(&md, vec![1.0, 2.0, 3.0, 4.0]);
 		let len = handle.size();
-		assert_eq!(
-			len,
-			16
-		);
+		assert_eq!(len, 16);
 	}
 }

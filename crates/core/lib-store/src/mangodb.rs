@@ -15,12 +15,8 @@ pub fn config_from_file(
 	let collection = client.database("use-ai").collection("configs");
 	let config = Config::get_config(path)?;
 	let mut doc = bson::to_document(&config).unwrap();
-	doc.insert(
-		"name", name,
-	);
-	doc.insert(
-		"active", false,
-	);
+	doc.insert("name", name);
+	doc.insert("active", false);
 
 	let result = collection.insert_one(doc).run()?;
 	println!(

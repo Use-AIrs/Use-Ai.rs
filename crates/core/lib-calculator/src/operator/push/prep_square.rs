@@ -5,23 +5,19 @@ use cubecl::prelude::*;
 use cubecl::server::Handle;
 use std::marker::PhantomData;
 
-pub struct PrepResiduals<R: Runtime> {
+pub struct PrepSquare<R: Runtime> {
 	_res: PhantomData<R>,
 }
 
-impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
-	type Input<'i> = (
-		&'i MetaData,
-		&'i Handle,
-		&'i Handle,
-	);
+impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
+	type Input<'i> = (&'i MetaData, &'i Handle);
 	type Output = (MetaData, Handle);
 
 	fn push<'i>(
 		input: Self::Input<'i>,
 		client: &ComputeClient<R::Server, R::Channel>,
 	) -> Result<Self::Output> {
-		let (meta, tensor_handle, scalar_handle) = input;
+		let (meta, tensor_handle) = input;
 		let input_tensor = unsafe {
 			TensorHandleRef::<R>::from_raw_parts(
 				tensor_handle,
@@ -48,27 +44,12 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 				)
 			};
 
-			let binding = scalar_handle.clone().binding();
-			let bytes = client.read_one(binding);
-			let output_value = f32::from_bytes(&bytes);
-			let value = output_value[0];
-			let vec = vec![value; n];
-			let neg_handle = client.create(f32::as_bytes(vec.as_slice()));
-			let neg_tensor = unsafe {
-				TensorHandleRef::<R>::from_raw_parts(
-					&neg_handle,
-					&meta.stride,
-					&meta.shape,
-					4,
-				)
-			};
 			unsafe {
-				prep_residuals::launch_unchecked::<f32, R>(
+				prep_square::launch_unchecked::<f32, R>(
 					&client,
 					CubeCount::Static(1, 1, 1),
 					CubeDim::new((n * 2) as u32, 1, 1),
 					input_tensor.as_tensor_arg(1),
-					neg_tensor.as_tensor_arg(1),
 					output_tensor.as_tensor_arg(1),
 				);
 			}
@@ -95,24 +76,12 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 				)
 			};
 
-			let neg_shape = [m, 1];
-			let neg_strides = [1, 1];
-			let neg_tensor = unsafe {
-				TensorHandleRef::<R>::from_raw_parts(
-					scalar_handle,
-					&neg_strides,
-					&neg_shape,
-					4,
-				)
-			};
-
 			unsafe {
-				prep_residuals::launch_unchecked::<f32, R>(
+				prep_square::launch_unchecked::<f32, R>(
 					&client,
 					CubeCount::Static(1, 1, 1),
 					CubeDim::new(n as u32, 1, 1),
 					input_tensor.as_tensor_arg(1),
-					neg_tensor.as_tensor_arg(1),
 					output_tensor.as_tensor_arg(1),
 				);
 			}
@@ -125,9 +94,8 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 	}
 }
 #[cube(launch_unchecked)]
-pub fn prep_residuals<T: Numeric>(
+pub fn prep_square<T: Numeric>(
 	input: &Tensor<T>,
-	neg: &Tensor<T>,
 	output: &mut Tensor<T>,
 ) {
 	let len = output.len();
@@ -135,9 +103,8 @@ pub fn prep_residuals<T: Numeric>(
 	for i in 0..cut {
 		output[i] = input[i];
 	}
-
 	for i in cut..len {
-		output[i] = neg[i - cut];
+		output[i] = input[i - cut];
 	}
 }
 
@@ -163,19 +130,15 @@ mod tests {
 	}
 
 	#[test]
-	fn test_prep_residuals_vector() -> Result<()> {
+	fn test_prep_square_vector() -> Result<()> {
 		let client = WgpuRuntime::client(&Default::default());
 		let meta = create_meta_vector();
 		let (meta, handle) = meta.handle_from_vec::<WgpuRuntime>(vec![
 			1.0, 2.0, 3.0, 4.0, 5.0, 6.0,
 		]);
 
-		let scalar_handle = client.create(f32::as_bytes(&[3.0]));
-
-		let (output_meta, output_handle) = PrepResiduals::<WgpuRuntime>::push(
-			(meta, &handle, &scalar_handle),
-			&client,
-		)?;
+		let (output_meta, output_handle) =
+			PrepSquare::<WgpuRuntime>::push((meta, &handle), &client)?;
 
 		let binding = output_handle.binding();
 		let bytes = client.read_one(binding);
@@ -185,7 +148,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_prep_residuals_matrix() -> Result<()> {
+	fn test_prep_square_matrix() -> Result<()> {
 		let client = WgpuRuntime::client(&Default::default());
 		let meta = create_meta_matrix();
 		let (meta, handle) = meta.handle_from_vec::<WgpuRuntime>(vec![
@@ -196,10 +159,9 @@ mod tests {
 			12.0, 11.0, 10.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0,
 		]));
 
-		let (output_meta, output_handle) = PrepResiduals::<WgpuRuntime>::push(
-			(meta, &handle, &scalar_handle),
-			&client,
-		)?;
+		let (output_meta, output_handle) =
+			PrepSquare::<WgpuRuntime>::push((meta, &handle), &client)?;
+
 		let binding = output_handle.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);

@@ -11,14 +11,8 @@ pub mod output_guard;
 
 pub fn transformer(instruction: DataSection) -> Result<()> {
 	let data = get_data(&instruction)?;
-	let result = transform(
-		data,
-		&instruction,
-	)?;
-	println!(
-		"{:?}",
-		result
-	);
+	let result = transform(data, &instruction)?;
+	println!("{:?}", result);
 	Ok(())
 }
 
@@ -62,10 +56,7 @@ pub fn transform(
 			},
 
 			other => {
-				println!(
-					"Unknown operation: {}",
-					other
-				);
+				println!("Unknown operation: {}", other);
 			},
 		}
 	}

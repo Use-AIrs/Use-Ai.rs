@@ -5,12 +5,10 @@ use syn::{parse_macro_input, Field, Fields, ItemStruct};
 fn get_fields(input: &ItemStruct) -> Result<Vec<&Field>, syn::Error> {
 	match &input.fields {
 		Fields::Named(fields_named) => Ok(fields_named.named.iter().collect()),
-		_ => Err(
-			syn::Error::new_spanned(
-				input,
-				"Expected a struct with named fields",
-			),
-		),
+		_ => Err(syn::Error::new_spanned(
+			input,
+			"Expected a struct with named fields",
+		)),
 	}
 }
 
@@ -34,27 +32,22 @@ pub fn operator(
 		let field_ident = field.ident.as_ref().unwrap();
 
 		let meta_ident = format_ident!("t{}_meta", count);
-		let handle_ident = format_ident!(
-			"t{}_handle",
-			count
-		);
+		let handle_ident = format_ident!("t{}_handle", count);
 		let tensor_ident = format_ident!("t{}", count);
 		tensor_idents.push(tensor_ident.clone());
 
-		tensor_bindings.push(
-			quote! {
-				let #meta_ident = &self.#field_ident.0;
-				let #handle_ident = &self.#field_ident.1;
-				let #tensor_ident = unsafe {
-					TensorHandleRef::<'a, R>::from_raw_parts(
-						&#handle_ident,
-						&*#meta_ident.stride,
-						&*#meta_ident.shape,
-						std::mem::size_of::<f32>()
-					)
-				};
-			},
-		);
+		tensor_bindings.push(quote! {
+			let #meta_ident = &self.#field_ident.0;
+			let #handle_ident = &self.#field_ident.1;
+			let #tensor_ident = unsafe {
+				TensorHandleRef::<'a, R>::from_raw_parts(
+					&#handle_ident,
+					&*#meta_ident.stride,
+					&*#meta_ident.shape,
+					std::mem::size_of::<f32>()
+				)
+			};
+		});
 	}
 
 	let ret_type = if tensor_idents.len() == 1 {
@@ -108,23 +101,19 @@ pub fn ctx(
 		let field_ident = field.ident.as_ref().unwrap();
 		let ctx_ident = format_ident!("c{}", count);
 		ctx_idents.push(ctx_ident.clone());
-		ctx_bindings.push(
-			quote! {
-				let #ctx_ident = self.#field_ident;
-			},
-		);
+		ctx_bindings.push(quote! {
+			let #ctx_ident = self.#field_ident;
+		});
 	}
 
 	let ret_type = if fields.len() == 1 {
 		let ty = &fields[0].ty;
 		quote! { #ty }
 	} else {
-		let types = fields.iter().map(
-			|f| {
-				let ty = &f.ty;
-				quote! { #ty }
-			},
-		);
+		let types = fields.iter().map(|f| {
+			let ty = &f.ty;
+			quote! { #ty }
+		});
 		quote! { (#(#types),*) }
 	};
 

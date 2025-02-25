@@ -27,10 +27,7 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMax {
 			let res = reduce::<R, f32, f32, ArgMax>(
 				&client, input, output, axis, None,
 			);
-			println!(
-				"{:?}",
-				res
-			);
+			println!("{:?}", res);
 			if res.is_ok() {
 				Ok(output_handle)
 			} else {

@@ -6,12 +6,9 @@ pub fn start_menu() -> Result<()> {
 	loop {
 		let st_menu = vec!["Init Transformation", "Init Training", "Test Model", "Back"];
 
-		let selection = Select::new(
-			"Executions:",
-			st_menu,
-		)
-		.with_help_message("Here you can load, list, import and create configurations.")
-		.prompt()?;
+		let selection = Select::new("Executions:", st_menu)
+			.with_help_message("Here you can load, list, import and create configurations.")
+			.prompt()?;
 
 		match selection {
 			"Init Transformation" => {

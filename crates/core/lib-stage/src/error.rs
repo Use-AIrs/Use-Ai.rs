@@ -1,5 +1,4 @@
 use ndarray::ShapeError;
-use serde_json::Error as SerdeError;
 use std::convert::Infallible;
 use std::num::{ParseFloatError, ParseIntError};
 use thiserror::Error;

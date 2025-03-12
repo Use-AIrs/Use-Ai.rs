@@ -20,8 +20,14 @@ impl MetaData {
 	pub fn build(
 		stride: Box<[usize]>,
 		shape: Box<[usize]>,
-	) -> MetaData {
-		MetaData { stride, shape }
+	) -> Self {
+		Self { stride, shape }
+	}
+	pub fn single() -> Self {
+		Self {
+			stride: Box::new([1, 1]),
+			shape: Box::new([1, 1]),
+		}
 	}
 	pub fn handle_empty<R: Runtime>(&self) -> (&Self, Handle) {
 		let client = R::client(&Default::default());
@@ -55,10 +61,7 @@ mod test {
 	}
 	#[test]
 	fn md_test_vec() {
-		let md = MetaData::build(
-			Box::new([2, 2]),
-			Box::new([2, 1]),
-		);
+		let md = MetaData::build(Box::new([2, 2]), Box::new([2, 1]));
 		let (meta, handle) =
 			MetaData::handle_from_vec::<WgpuRuntime>(&md, vec![1.0, 2.0, 3.0, 4.0]);
 		let len = handle.size();

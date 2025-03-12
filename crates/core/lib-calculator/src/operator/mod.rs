@@ -5,13 +5,10 @@
 //! For now, we just implement everything with pushes on the Cpu. But our approach will allow us to
 //! lower this mechanism completely into a Gpu kernel when introducing a counter and an allocator.
 
-use crate::model::Operation;
-use crate::operator::exec::base::PipelineExec;
-use crate::operator::push::base::PipelinePush;
-use cubecl::channel::ComputeChannel;
+pub use crate::operator::exec::*;
+pub use crate::operator::push::*;
+
 use cubecl::prelude::*;
-use cubecl::reduce::instructions::ArgAccumulator;
-use cubecl::reduce::*;
 
 pub mod error;
 pub mod exec;

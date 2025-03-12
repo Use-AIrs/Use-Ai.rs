@@ -19,35 +19,23 @@ pub fn config_menu() -> Result<()> {
 		match selection {
 			Ok("Load Config") => {
 				if let Err(e) = load_config() {
-					eprintln!(
-						"Error loading configuration: {}",
-						e
-					);
+					eprintln!("Error loading configuration: {}", e);
 				}
 			},
 			Ok("List Configs") => {
 				if let Err(e) = list_config() {
-					eprintln!(
-						"Error listing configurations: {}",
-						e
-					);
+					eprintln!("Error listing configurations: {}", e);
 				}
 			},
 			Ok("Import") => {
 				if let Err(e) = import_config() {
-					eprintln!(
-						"Error importing configuration: {}",
-						e
-					);
+					eprintln!("Error importing configuration: {}", e);
 				}
 			},
 			Ok("New Config") => new_config(),
 			Ok("Back") => return Ok(()),
 			Err(e) => {
-				eprintln!(
-					"Error in menu selection: {}",
-					e
-				);
+				eprintln!("Error in menu selection: {}", e);
 			},
 			_ => (),
 		}

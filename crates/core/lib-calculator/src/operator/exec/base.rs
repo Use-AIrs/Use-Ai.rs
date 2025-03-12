@@ -1,4 +1,5 @@
 use crate::error::Result;
+use crate::MetaData;
 use cubecl::prelude::*;
 use cubecl::server::Handle;
 
@@ -7,5 +8,5 @@ pub trait PipelineExec<R: Runtime> {
 	fn exec(
 		input: TensorHandleRef<R>,
 		client: &ComputeClient<R::Server, R::Channel>,
-	) -> Result<Handle>;
+	) -> Result<(MetaData, Handle)>;
 }

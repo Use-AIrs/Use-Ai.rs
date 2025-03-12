@@ -1,3 +1,7 @@
 pub mod base;
-mod prep_res_vec;
-mod prep_square;
+pub mod prep_res_vec;
+pub mod prep_square;
+
+pub use base::*;
+pub use prep_res_vec::*;
+pub use prep_square::*;

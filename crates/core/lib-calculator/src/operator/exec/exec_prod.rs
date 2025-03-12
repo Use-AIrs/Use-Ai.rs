@@ -1,54 +1,42 @@
-use crate::error::{CalcError, Result};
+use crate::error::Result;
 use crate::operator::exec::base::PipelineExec;
-use crate::operator::push::base::PipelinePush;
+
+use crate::MetaData;
 use cubecl::prelude::*;
 use cubecl::reduce::instructions::Prod;
 use cubecl::reduce::reduce;
 use cubecl::server::Handle;
+use std::marker::PhantomData;
 
-pub struct ExecProd;
+pub struct ExecProd<R: Runtime> {
+	_phantom: PhantomData<R>,
+}
 
-impl<R: Runtime> PipelineExec<R> for ExecProd {
+impl<R: Runtime> PipelineExec<R> for ExecProd<R> {
 	fn exec(
 		input: TensorHandleRef<R>,
 		client: &ComputeClient<R::Server, R::Channel>,
-	) -> Result<Handle> {
+	) -> Result<(MetaData, Handle)> {
 		let axis = if input.strides == [1, 1] { 1 } else { 0 };
 		if axis == 1 {
 			let output_handle = client.empty(4);
 			let output = unsafe {
-				TensorHandleRef::<R>::from_raw_parts(
-					&output_handle,
-					&[1, 1],
-					&[1, 1],
-					4,
-				)
+				TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
 			};
-			let res = reduce::<R, f32, f32, Prod>(
-				&client, input, output, axis, None,
-			);
-			if res.is_ok() {
-				Ok(output_handle)
-			} else {
-				Err(CalcError::GpuError)
-			}
+			reduce::<R, f32, f32, Prod>(&client, input, output, axis, None)?;
+			let md = MetaData::single();
+			Ok((md, output_handle))
 		} else {
 			let n = input.shape[1];
 			let shape = [1, n];
 			let strides = [1, n];
 			let output_handle = client.empty(n * 4);
 			let output = unsafe {
-				TensorHandleRef::<R>::from_raw_parts(
-					&output_handle,
-					&strides,
-					&shape,
-					4,
-				)
+				TensorHandleRef::<R>::from_raw_parts(&output_handle, &strides, &shape, 4)
 			};
-			reduce::<R, f32, f32, Prod>(
-				&client, input, output, axis, None,
-			)?;
-			Ok(output_handle)
+			reduce::<R, f32, f32, Prod>(&client, input, output, axis, None)?;
+			let md = MetaData::build(Box::new(shape), Box::new(strides));
+			Ok((md, output_handle))
 		}
 	}
 }

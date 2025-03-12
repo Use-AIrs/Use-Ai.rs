@@ -1,140 +1,205 @@
+extern crate proc_macro;
+
 use proc_macro::TokenStream;
-use quote::{format_ident, quote};
-use syn::{parse_macro_input, Field, Fields, ItemStruct};
+use proc_macro2::{Span, TokenStream as TokenStream2};
+use quote::quote;
+use syn::{
+	parenthesized,
+	parse::{Parse, ParseStream, Result as SynResult},
+	parse_macro_input,
+	punctuated::Punctuated,
+	Expr, Ident, Path, Token, Type,
+};
 
-fn get_fields(input: &ItemStruct) -> Result<Vec<&Field>, syn::Error> {
-	match &input.fields {
-		Fields::Named(fields_named) => Ok(fields_named.named.iter().collect()),
-		_ => Err(syn::Error::new_spanned(
-			input,
-			"Expected a struct with named fields",
-		)),
+struct ActionStep {
+	inputs: Option<Expr>,
+	op: Path,
+	output: Option<Expr>,
+}
+
+fn to_var(idx: usize) -> (Ident, Ident) {
+	let a = format!("a{}", idx);
+	let b = format!("b{}", idx);
+	(
+		Ident::new(&a, Span::call_site()),
+		Ident::new(&b, Span::call_site()),
+	)
+}
+
+impl Parse for ActionStep {
+	fn parse(input: ParseStream) -> SynResult<Self> {
+		let content;
+		parenthesized!(content in input);
+
+		if !content.peek(syn::token::Paren) && !content.peek2(Token![,]) {
+			let fork = content.fork();
+			if let Ok(op) = fork.parse::<Path>() {
+				if fork.is_empty() {
+					content.parse::<Path>()?; // Consume the path
+					return Ok(ActionStep {
+						inputs: None,
+						op,
+						output: None,
+					});
+				}
+			}
+		}
+
+		let inputs_expr: Expr = content.parse()?;
+		content.parse::<Token![,]>()?;
+		let op: Path = content.parse()?;
+		let output = if content.peek(Token![,]) {
+			content.parse::<Token![,]>()?;
+			Some(content.parse::<Expr>()?)
+		} else {
+			None
+		};
+
+		Ok(ActionStep {
+			inputs: Some(inputs_expr),
+			op,
+			output,
+		})
 	}
 }
 
-#[proc_macro_attribute]
-pub fn operator(
-	_attr: TokenStream,
-	item: TokenStream,
-) -> TokenStream {
-	let input = parse_macro_input!(item as ItemStruct);
-	let struct_ident = input.ident.clone();
+struct ActionSpaceInput {
+	runtime: Type,
+	steps: Punctuated<ActionStep, Token![,]>,
+}
 
-	let fields = match get_fields(&input) {
-		Ok(f) => f,
-		Err(err) => return err.to_compile_error().into(),
-	};
+impl Parse for ActionSpaceInput {
+	fn parse(input: ParseStream) -> SynResult<Self> {
+		let runtime = input.parse::<Type>()?;
+		input.parse::<Token![,]>()?;
+		let steps = Punctuated::parse_terminated(input)?;
 
-	let mut tensor_bindings = Vec::new();
-	let mut tensor_idents = Vec::new();
+		Ok(ActionSpaceInput { runtime, steps })
+	}
+}
 
-	for (count, field) in fields.iter().enumerate() {
-		let field_ident = field.ident.as_ref().unwrap();
+#[proc_macro]
+pub fn action_space(input: TokenStream) -> TokenStream {
+	let action_input = parse_macro_input!(input as ActionSpaceInput);
+	let runtime = action_input.runtime;
+	let steps = action_input.steps.into_iter().collect::<Vec<_>>();
 
-		let meta_ident = format_ident!("t{}_meta", count);
-		let handle_ident = format_ident!("t{}_handle", count);
-		let tensor_ident = format_ident!("t{}", count);
-		tensor_idents.push(tensor_ident.clone());
+	if steps.is_empty() {
+		return syn::Error::new(
+			Span::call_site(),
+			"No steps provided for action_space!",
+		)
+		.to_compile_error()
+		.into();
+	}
 
-		tensor_bindings.push(quote! {
-			let #meta_ident = &self.#field_ident.0;
-			let #handle_ident = &self.#field_ident.1;
-			let #tensor_ident = unsafe {
-				TensorHandleRef::<'a, R>::from_raw_parts(
-					&#handle_ident,
-					&*#meta_ident.stride,
-					&*#meta_ident.shape,
-					std::mem::size_of::<f32>()
+	let mut code = TokenStream2::new();
+	let mut current_output = None;
+
+	for (i, step) in steps.iter().enumerate() {
+		let op = &step.op;
+		let (a, b) = to_var(i);
+
+		if i == 0 && step.inputs.is_none() {
+			return syn::Error::new(
+				Span::call_site(),
+				"Please specify input tensor",
+			)
+			.to_compile_error()
+			.into();
+		}
+
+		if let Some(inputs) = &step.inputs {
+			if op
+				.segments
+				.last()
+				.unwrap()
+				.ident
+				.to_string()
+				.starts_with("Exec")
+			{
+				code.extend(quote! {
+					let (#a, #b) = #op::<#runtime>::exec(#inputs, &client)?;
+				});
+				current_output = Some(quote! { (#a, #b) });
+			} else if op
+				.segments
+				.last()
+				.unwrap()
+				.ident
+				.to_string()
+				.starts_with("Prep")
+			{
+				code.extend(quote! {
+					let #a = #op::<#runtime>::push(#inputs, &client)?;
+				});
+				current_output = Some(quote! { #a });
+			} else {
+				code.extend(quote! {
+					let #a = #op::<#runtime>::push(#inputs, &client)?;
+				});
+				current_output = Some(quote! { #a });
+			}
+		} else {
+			if let Some(prev_output) = current_output {
+				if op
+					.segments
+					.last()
+					.unwrap()
+					.ident
+					.to_string()
+					.starts_with("Exec")
+				{
+					code.extend(quote! {
+						let (#a, #b) = #op::<#runtime>::exec(#prev_output, &client)?;
+					});
+					current_output = Some(quote! { (&#a, &#b) });
+				} else if op
+					.segments
+					.last()
+					.unwrap()
+					.ident
+					.to_string()
+					.starts_with("Prep")
+				{
+					code.extend(quote! {
+						let #a = #op::push(#prev_output, &client)?;
+					});
+					current_output = Some(quote! { #a });
+				} else {
+					code.extend(quote! {
+						let #a = #op::<#runtime>::push(#prev_output, &client)?;
+					});
+					current_output = Some(quote! { #a });
+				}
+			} else {
+				return syn::Error::new(
+					Span::call_site(),
+					"Cannot use default input on first step",
 				)
-			};
-		});
+				.to_compile_error()
+				.into();
+			}
+		}
+
+		if let Some(output_var) = &step.output {
+			code.extend(quote! {
+				let #output_var = #b;
+			});
+		}
 	}
 
-	let ret_type = if tensor_idents.len() == 1 {
-		quote! { TensorHandleRef<'a, R> }
-	} else {
-		let types = tensor_idents
-			.iter()
-			.map(|_| quote! { TensorHandleRef<'a, R> });
-		quote! { (#(#types),*) }
-	};
+	let last_idx = steps.len() - 1;
+	let (last_a, last_b) = to_var(last_idx);
+	code.extend(quote! {
+		(#last_a, #last_b)
+	});
 
-	let ret_expr = if tensor_idents.len() == 1 {
-		let t0 = &tensor_idents[0];
-		quote! { #t0 }
-	} else {
-		quote! { (#(#tensor_idents),*) }
-	};
-
-	let expanded = quote! {
-		#input
-
-		impl<R: Runtime> Operator<R> for #struct_ident {
-			type Mem<'a> = #ret_type;
-
-			fn mem_rep<'a>(&'a self) -> Self::Mem<'a> {
-				#(#tensor_bindings)*
-				#ret_expr
-			}
+	let output = quote! {
+		{
+			#code
 		}
 	};
 
-	TokenStream::from(expanded)
-}
-
-#[proc_macro_attribute]
-pub fn ctx(
-	_attr: TokenStream,
-	item: TokenStream,
-) -> TokenStream {
-	let input = parse_macro_input!(item as ItemStruct);
-	let struct_ident = input.ident.clone();
-
-	let fields = match get_fields(&input) {
-		Ok(f) => f,
-		Err(err) => return err.to_compile_error().into(),
-	};
-
-	let mut ctx_bindings = Vec::new();
-	let mut ctx_idents = Vec::new();
-	for (count, field) in fields.iter().enumerate() {
-		let field_ident = field.ident.as_ref().unwrap();
-		let ctx_ident = format_ident!("c{}", count);
-		ctx_idents.push(ctx_ident.clone());
-		ctx_bindings.push(quote! {
-			let #ctx_ident = self.#field_ident;
-		});
-	}
-
-	let ret_type = if fields.len() == 1 {
-		let ty = &fields[0].ty;
-		quote! { #ty }
-	} else {
-		let types = fields.iter().map(|f| {
-			let ty = &f.ty;
-			quote! { #ty }
-		});
-		quote! { (#(#types),*) }
-	};
-
-	let ret_expr = if ctx_idents.len() == 1 {
-		let c0 = &ctx_idents[0];
-		quote! { #c0 }
-	} else {
-		quote! { (#(#ctx_idents),*) }
-	};
-
-	let expanded = quote! {
-		#input
-
-		impl Context for #struct_ident {
-			type Tuple = #ret_type;
-			fn ctx_ref(&self) -> #ret_type {
-				#(#ctx_bindings)*
-				#ret_expr
-			}
-		}
-	};
-
-	TokenStream::from(expanded)
+	TokenStream::from(output)
 }

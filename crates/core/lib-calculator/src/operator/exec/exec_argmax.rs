@@ -3,40 +3,82 @@ use crate::operator::exec::base::PipelineExec;
 use crate::MetaData;
 
 use cubecl::prelude::*;
-use cubecl::reduce::instructions::ArgMax;
+use cubecl::reduce::instructions::ArgMin;
 use cubecl::reduce::reduce;
 use cubecl::server::Handle;
 use std::marker::PhantomData;
 
-pub struct ExecArgMax<R: Runtime> {
+pub struct ExecArgMin<R: Runtime> {
 	_phantom: PhantomData<R>,
 }
 
-impl<R: Runtime> PipelineExec<R> for ExecArgMax<R> {
+impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
 	fn exec(
 		input: TensorHandleRef<R>,
 		client: &ComputeClient<R::Server, R::Channel>,
 	) -> Result<(MetaData, Handle)> {
-		let axis = if input.strides == [1, 1] { 1 } else { 0 };
-		if axis == 1 {
-			let output_handle = client.empty(4);
+		if input.shape.len() == 3 {
+			let m = input.shape[0];
+			let n = input.shape[1];
+			let axis = 2;
+
+			let output_shape = [m, n];
+			let output_strides = [n, 1];
+			let output_handle = client.empty(m * n * 4);
+
 			let output = unsafe {
-				TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
+				TensorHandleRef::<R>::from_raw_parts(
+					&output_handle,
+					&output_strides,
+					&output_shape,
+					4,
+				)
 			};
-			reduce::<R, f32, f32, ArgMax>(&client, input, output, axis, None)?;
-			let md = MetaData::single();
+
+			println!(
+				"ArgMin3d( in: {:?}, out: {:?}",
+				&input.shape, &output.shape
+			);
+			println!();
+			reduce::<R, f32, f32, ArgMin>(&client, input, output, axis, None)?;
+
+			let md = MetaData::build(
+				Box::new(output_strides),
+				Box::new(output_shape),
+			);
 			Ok((md, output_handle))
 		} else {
-			let sh = input.shape[1];
-			let shape = [1, sh];
-			let strides = [1, sh];
-			let output_handle = client.empty(sh * 4);
-			let output = unsafe {
-				TensorHandleRef::<R>::from_raw_parts(&output_handle, &strides, &shape, 4)
-			};
-			reduce::<R, f32, f32, ArgMax>(&client, input, output, axis, None)?;
-			let md = MetaData::build(Box::new(shape), Box::new(strides));
-			Ok((md, output_handle))
+			let axis = if input.strides == [1, 1] { 1 } else { 0 };
+			if axis == 1 {
+				let output_handle = client.empty(4);
+				let output = unsafe {
+					TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
+				};
+				println!(
+					"ArgMin( in: {:?}, out: {:?}",
+					&input.shape, &output.shape
+				);
+				println!();
+				reduce::<R, f32, f32, ArgMin>(&client, input, output, axis, None)?;
+				let md = MetaData::single();
+				Ok((md, output_handle))
+			} else {
+				let n = input.shape[1];
+				let shape = [1, n];
+				let strides = [n, 1];
+				let output_handle = client.empty(n * 4);
+				let output = unsafe {
+					TensorHandleRef::<R>::from_raw_parts(&output_handle, &strides, &shape, 4)
+				};
+				println!(
+					"ArgMin( in: {:?}, out: {:?}",
+					&input.shape, &output.shape
+				);
+				println!();
+				reduce::<R, f32, f32, ArgMin>(&client, input, output, axis, None)?;
+				let md = MetaData::build(Box::new(strides), Box::new(shape));
+				Ok((md, output_handle))
+			}
 		}
 	}
 }

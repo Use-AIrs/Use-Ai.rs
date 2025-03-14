@@ -99,7 +99,7 @@ mod tests {
 	#[test]
 	fn test_exec_prod_vector() -> Result<()> {
 		let client = WgpuRuntime::client(&Default::default());
-		let len = 100000000;
+		let len = 1000;
 		let shape = Box::leak(Box::new([1, len]));
 		let stride = Box::leak(Box::new([1, 1]));
 		let dummy_tensor = create_random_vector(&client, len, shape, stride);

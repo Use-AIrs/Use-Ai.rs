@@ -27,11 +27,11 @@ mod tests {
 	use lib_proc_macros::action_space;
 
 	fn create_meta_vector() -> MetaData {
-		MetaData::build(Box::new([1, 1]), Box::new([12, 1]))
+		MetaData::build(Box::new([1, 1]), Box::new([1, 12]))
 	}
 
 	fn create_meta_matrix() -> MetaData {
-		MetaData::build(Box::new([6, 1]), Box::new([6, 2]))
+		MetaData::build(Box::new([6, 1]), Box::new([2, 6]))
 	}
 
 	#[test]
@@ -43,7 +43,7 @@ mod tests {
 		]);
 		let some_tensor = to_tref::<WgpuRuntime>((&meta_input, &handle_input));
 
-		let (md, handle) = action_space!(
+		let score = action_space!(
 			WgpuRuntime,
 			(some_tensor, ExecMean, some_output),
 			(
@@ -55,7 +55,7 @@ mod tests {
 			(ExecProd),
 		);
 
-		let binding = handle.binding();
+		let binding = score.1.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		println!("Output = {:?}", output_values);
@@ -71,11 +71,11 @@ mod tests {
 		]);
 		let some_tensor = to_tref::<WgpuRuntime>((&meta_input, &handle_input));
 
-		let (md, handle) = action_space!(
+		let score = action_space!(
 			WgpuRuntime,
-			(some_tensor, ExecMean, some_output),
+			(some_tensor, ExecMean, output_handle),
 			(
-				(&meta_input, &handle_input, &some_output),
+				(&meta_input, &handle_input, &output_handle),
 				PrepResiduals
 			),
 			(ExecSum),
@@ -83,7 +83,7 @@ mod tests {
 			(ExecProd),
 		);
 
-		let binding = handle.binding();
+		let binding = score.1.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		println!("Output = {:?}", output_values);

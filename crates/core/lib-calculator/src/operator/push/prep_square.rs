@@ -45,6 +45,12 @@ impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
 				)
 			};
 
+			println!(
+				"PrepSqu( in: {:?}, out: {:?}",
+				&input_tensor.shape, &output_tensor_for_kernel.shape
+			);
+			println!();
+
 			unsafe {
 				prep_square::launch_unchecked::<f32, R>(
 					&client,
@@ -78,6 +84,12 @@ impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
 					4,
 				)
 			};
+
+			println!(
+				"PrepRes( in: {:?}, out: {:?}",
+				&input_tensor.shape, &output_tensor_for_kernel.shape
+			);
+			println!();
 
 			unsafe {
 				prep_square::launch_unchecked::<f32, R>(

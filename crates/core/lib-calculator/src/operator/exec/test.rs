@@ -37,26 +37,6 @@ mod tests {
 	}
 
 	#[test]
-	fn test_exec_mean_vector() -> Result<()> {
-		let client = WgpuRuntime::client(&Default::default());
-		let len = 1000;
-		let shape = Box::leak(Box::new([1, len]));
-		let stride = Box::leak(Box::new([1, 1]));
-		let dummy_tensor = create_random_vector(&client, len, shape, stride);
-		let start = Instant::now();
-		let output_handle = ExecMean::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
-		let bytes = client.read_one(binding);
-		let output_values = f32::from_bytes(&bytes);
-		let elapsed = start.elapsed();
-		println!(
-			"ExecMean (Vector) Output: {:?}, Time: {:?}",
-			output_values, elapsed
-		);
-		Ok(())
-	}
-
-	#[test]
 	fn test_exec_argmin_vector() -> Result<()> {
 		let client = WgpuRuntime::client(&Default::default());
 		let len = 1000;
@@ -71,6 +51,25 @@ mod tests {
 		let elapsed = start.elapsed();
 		println!(
 			"ExecArgMin (Vector) Output: {:?}, Time: {:?}",
+			output_values, elapsed
+		);
+		Ok(())
+	}
+
+	#[test]
+	fn test_exec_argmin_matrix() -> Result<()> {
+		let client = WgpuRuntime::client(&Default::default());
+		let shape = Box::leak(Box::new([25, 40]));
+		let stride = Box::leak(Box::new([40, 1]));
+		let dummy_tensor = create_random_matrix(&client, shape, stride);
+		let start = Instant::now();
+		let output_handle = ExecArgMin::<WgpuRuntime>::exec(dummy_tensor, &client)?;
+		let binding = output_handle.1.binding();
+		let bytes = client.read_one(binding);
+		let output_values = f32::from_bytes(&bytes);
+		let elapsed = start.elapsed();
+		println!(
+			"ExecArgMin (Matrix) Output: {:?}, Time: {:?}",
 			output_values, elapsed
 		);
 		Ok(())
@@ -97,6 +96,25 @@ mod tests {
 	}
 
 	#[test]
+	fn test_exec_argmax_matrix() -> Result<()> {
+		let client = WgpuRuntime::client(&Default::default());
+		let shape = Box::leak(Box::new([25, 40]));
+		let stride = Box::leak(Box::new([40, 1]));
+		let dummy_tensor = create_random_matrix(&client, shape, stride);
+		let start = Instant::now();
+		let output_handle = ExecArgMax::<WgpuRuntime>::exec(dummy_tensor, &client)?;
+		let binding = output_handle.1.binding();
+		let bytes = client.read_one(binding);
+		let output_values = f32::from_bytes(&bytes);
+		let elapsed = start.elapsed();
+		println!(
+			"ExecArgMax (Matrix) Output: {:?}, Time: {:?}",
+			output_values, elapsed
+		);
+		Ok(())
+	}
+
+	#[test]
 	fn test_exec_prod_vector() -> Result<()> {
 		let client = WgpuRuntime::client(&Default::default());
 		let len = 1000;
@@ -117,20 +135,39 @@ mod tests {
 	}
 
 	#[test]
-	fn test_exec_sum_vector() -> Result<()> {
+	fn test_exec_prod_matrix() -> Result<()> {
+		let client = WgpuRuntime::client(&Default::default());
+		let shape = Box::leak(Box::new([25, 40]));
+		let stride = Box::leak(Box::new([40, 1]));
+		let dummy_tensor = create_random_matrix(&client, shape, stride);
+		let start = Instant::now();
+		let output_handle = ExecProd::<WgpuRuntime>::exec(dummy_tensor, &client)?;
+		let binding = output_handle.1.binding();
+		let bytes = client.read_one(binding);
+		let output_values = f32::from_bytes(&bytes);
+		let elapsed = start.elapsed();
+		println!(
+			"ExecProd (Matrix) Output: {:?}, Time: {:?}",
+			output_values, elapsed
+		);
+		Ok(())
+	}
+
+	#[test]
+	fn test_exec_mean_vector() -> Result<()> {
 		let client = WgpuRuntime::client(&Default::default());
 		let len = 1000;
 		let shape = Box::leak(Box::new([1, len]));
 		let stride = Box::leak(Box::new([1, 1]));
 		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 		let start = Instant::now();
-		let output_handle = ExecSum::<WgpuRuntime>::exec(dummy_tensor, &client)?;
+		let output_handle = ExecMean::<WgpuRuntime>::exec(dummy_tensor, &client)?;
 		let binding = output_handle.1.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		let elapsed = start.elapsed();
 		println!(
-			"ExecSum (Vector) Output: {:?}, Time: {:?}",
+			"ExecMean (Vector) Output: {:?}, Time: {:?}",
 			output_values, elapsed
 		);
 		Ok(())
@@ -156,57 +193,20 @@ mod tests {
 	}
 
 	#[test]
-	fn test_exec_argmin_matrix() -> Result<()> {
+	fn test_exec_sum_vector() -> Result<()> {
 		let client = WgpuRuntime::client(&Default::default());
-		let shape = Box::leak(Box::new([25, 40]));
-		let stride = Box::leak(Box::new([40, 1]));
-		let dummy_tensor = create_random_matrix(&client, shape, stride);
+		let len = 1000;
+		let shape = Box::leak(Box::new([1, len]));
+		let stride = Box::leak(Box::new([1, 1]));
+		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 		let start = Instant::now();
-		let output_handle = ExecArgMin::<WgpuRuntime>::exec(dummy_tensor, &client)?;
+		let output_handle = ExecSum::<WgpuRuntime>::exec(dummy_tensor, &client)?;
 		let binding = output_handle.1.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		let elapsed = start.elapsed();
 		println!(
-			"ExecArgMin (Matrix) Output: {:?}, Time: {:?}",
-			output_values, elapsed
-		);
-		Ok(())
-	}
-
-	#[test]
-	fn test_exec_argmax_matrix() -> Result<()> {
-		let client = WgpuRuntime::client(&Default::default());
-		let shape = Box::leak(Box::new([25, 40]));
-		let stride = Box::leak(Box::new([40, 1]));
-		let dummy_tensor = create_random_matrix(&client, shape, stride);
-		let start = Instant::now();
-		let output_handle = ExecArgMax::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
-		let bytes = client.read_one(binding);
-		let output_values = f32::from_bytes(&bytes);
-		let elapsed = start.elapsed();
-		println!(
-			"ExecArgMax (Matrix) Output: {:?}, Time: {:?}",
-			output_values, elapsed
-		);
-		Ok(())
-	}
-
-	#[test]
-	fn test_exec_prod_matrix() -> Result<()> {
-		let client = WgpuRuntime::client(&Default::default());
-		let shape = Box::leak(Box::new([25, 40]));
-		let stride = Box::leak(Box::new([40, 1]));
-		let dummy_tensor = create_random_matrix(&client, shape, stride);
-		let start = Instant::now();
-		let output_handle = ExecProd::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
-		let bytes = client.read_one(binding);
-		let output_values = f32::from_bytes(&bytes);
-		let elapsed = start.elapsed();
-		println!(
-			"ExecProd (Matrix) Output: {:?}, Time: {:?}",
+			"ExecSum (Vector) Output: {:?}, Time: {:?}",
 			output_values, elapsed
 		);
 		Ok(())

@@ -13,6 +13,7 @@ use cubecl::prelude::*;
 pub mod error;
 pub mod exec;
 pub mod push;
+mod test;
 
 pub trait Operator<R: Runtime> {
 	type Mem<'a>

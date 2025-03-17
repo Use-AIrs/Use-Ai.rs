@@ -65,6 +65,7 @@ impl<R: Runtime> PipelineExec<R> for ExecSum<R> {
 			} else {
 				let n = input.shape[0];
 				let shape = [n, 1];
+				let out_shape = [1, n];
 				let strides = [1, 1];
 				let output_handle = client.empty(n * 4);
 				let output = unsafe {

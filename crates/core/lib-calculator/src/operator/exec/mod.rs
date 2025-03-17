@@ -4,7 +4,7 @@ pub mod exec_argmin;
 pub mod exec_mean;
 pub mod exec_prod;
 pub mod exec_sum;
-mod test;
+pub mod test;
 
 pub use base::*;
 pub use exec_argmax::*;

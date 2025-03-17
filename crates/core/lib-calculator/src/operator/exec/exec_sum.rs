@@ -77,7 +77,7 @@ impl<R: Runtime> PipelineExec<R> for ExecSum<R> {
 				);
 
 				reduce::<R, f32, f32, Sum>(&client, input, output, 1, None)?;
-				let md = MetaData::build(Box::new(strides), Box::new(shape));
+				let md = MetaData::build(Box::new(strides), Box::new(out_shape));
 				Ok((md, output_handle))
 			}
 		}

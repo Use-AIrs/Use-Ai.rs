@@ -29,9 +29,9 @@ impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
 		let stride = meta.stride.iter().as_slice();
 
 		let (output_handle, output_strides, output_shape) = if stride == &[1, 1] {
-			let n = meta.shape[0];
-			let output_shape = [n, 2];
-			let output_strides = [1, 2];
+			let n = meta.shape[1];
+			let output_shape = [2, n];
+			let output_strides = [n, 1];
 			let total_bytes = 2 * n * 4;
 
 			let output_handle = client.empty(total_bytes);
@@ -46,7 +46,7 @@ impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
 			};
 
 			println!(
-				"PrepSqu( in: {:?}, out: {:?}",
+				"PrepSquare( in: {:?}, out: {:?}",
 				&input_tensor.shape, &output_tensor_for_kernel.shape
 			);
 			println!();
@@ -70,7 +70,7 @@ impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
 			let m = meta.shape[0];
 			let n = meta.shape[1];
 			let output_shape = [m, n, 2];
-			let output_strides = [n * 2, 2, 1];
+			let output_strides = [n, m, 1];
 			let size = m * n * 2;
 			let total_bytes = size * 4;
 
@@ -86,7 +86,7 @@ impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
 			};
 
 			println!(
-				"PrepRes( in: {:?}, out: {:?}",
+				"PrepSquare( in: {:?}, out: {:?}",
 				&input_tensor.shape, &output_tensor_for_kernel.shape
 			);
 			println!();
@@ -143,11 +143,11 @@ mod tests {
 	use cubecl::wgpu::WgpuRuntime;
 
 	fn create_meta_vector() -> MetaData {
-		MetaData::build(Box::new([1, 1]), Box::new([6, 1]))
+		MetaData::build(Box::new([1, 1]), Box::new([1, 6]))
 	}
 
 	fn create_meta_matrix() -> MetaData {
-		MetaData::build(Box::new([6, 1]), Box::new([6, 2]))
+		MetaData::build(Box::new([6, 1]), Box::new([2, 6]))
 	}
 
 	#[test]

@@ -16,26 +16,22 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 		input: Self::Input<'i>,
 		client: &ComputeClient<R::Server, R::Channel>,
 	) -> Result<TensorHandleRef<'o, R>> {
-		let (meta, tensor_handle, scalar_handle) = input;
-		let input_tensor = unsafe {
-			TensorHandleRef::<'i, R>::from_raw_parts(
-				tensor_handle,
-				&meta.stride,
-				&meta.shape,
-				4,
-			)
+		let (md0, t0_handle, t1_handle) = input;
+
+		let t0 = unsafe {
+			TensorHandleRef::<'i, R>::from_raw_parts(t0_handle, &md0.stride, &md0.shape, 4)
 		};
 
-		let stride = meta.stride.iter().as_slice();
+		let t1_len = t1_handle.size();
 
-		let (output_handle, output_strides, output_shape) = if stride == &[1, 1] {
-			let n = meta.shape[0];
-			let output_shape = [n, 2];
-			let output_strides = [1, 2];
+		let (output_handle, output_strides, output_shape) = if t1_len == 4 {
+			let n = md0.shape[1];
+			let output_shape = [2, n];
+			let output_strides = [n, 1];
 			let total_bytes = 2 * n * 4;
 			let output_handle = client.empty(total_bytes);
 
-			let binding = scalar_handle.clone().binding();
+			let binding = t1_handle.clone().binding();
 			let bytes = client.read_one(binding);
 			let output_value = f32::from_bytes(&bytes);
 			let value = output_value[0];
@@ -43,7 +39,7 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 			let vec = vec![value; n];
 			let neg_handle = client.create(f32::as_bytes(vec.as_slice()));
 			let neg_tensor = unsafe {
-				TensorHandleRef::<'_, R>::from_raw_parts(&neg_handle, &meta.stride, &meta.shape, 4)
+				TensorHandleRef::<'_, R>::from_raw_parts(&neg_handle, &md0.stride, &md0.shape, 4)
 			};
 
 			let output_tensor_for_kernel = unsafe {
@@ -58,7 +54,7 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 			println!();
 			println!(
 				"PrepRes( in: {:?}, out: {:?}",
-				&input_tensor.shape, &output_tensor_for_kernel.shape
+				&t0.shape, &output_tensor_for_kernel.shape
 			);
 
 			unsafe {
@@ -66,7 +62,7 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 					&client,
 					CubeCount::Static(1, 1, 1),
 					CubeDim::new((n * 2) as u32, 1, 1),
-					input_tensor.as_tensor_arg(1),
+					t0.as_tensor_arg(1),
 					neg_tensor.as_tensor_arg(1),
 					output_tensor_for_kernel.as_tensor_arg(1),
 				);
@@ -78,10 +74,10 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 				output_shape.to_vec(),
 			)
 		} else {
-			let m = meta.shape[0];
-			let n = meta.shape[1];
+			let m = md0.shape[0];
+			let n = md0.shape[1];
 			let output_shape = [m, n, 2];
-			let output_strides = [n * 2, 2, 1];
+			let output_strides = [n, m, 1];
 			let size = m * n * 2;
 			let total_bytes = size * 4;
 
@@ -99,13 +95,13 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 			let neg_shape = [m, 1];
 			let neg_strides = [1, 1];
 			let neg_tensor = unsafe {
-				TensorHandleRef::<'_, R>::from_raw_parts(scalar_handle, &neg_strides, &neg_shape, 4)
+				TensorHandleRef::<'_, R>::from_raw_parts(t1_handle, &neg_strides, &neg_shape, 4)
 			};
 
 			println!();
 			println!(
 				"PrepRes( in: {:?}, out: {:?}",
-				&input_tensor.shape, &output_tensor_for_kernel.shape
+				&t0.shape, &output_tensor_for_kernel.shape
 			);
 
 			unsafe {
@@ -113,7 +109,7 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 					&client,
 					CubeCount::Static(1, 1, 1),
 					CubeDim::new(n as u32, 1, 1),
-					input_tensor.as_tensor_arg(1),
+					t0.as_tensor_arg(1),
 					neg_tensor.as_tensor_arg(1),
 					output_tensor_for_kernel.as_tensor_arg(1),
 				);
@@ -143,14 +139,14 @@ pub fn prep_residuals<T: Numeric>(
 	neg: &Tensor<T>,
 	output: &mut Tensor<T>,
 ) {
+	let zero = T::from_int(0);
 	let len = output.len();
 	let cut = len / 2u32;
 	for i in 0..cut {
 		output[i] = input[i];
 	}
-
 	for i in cut..len {
-		output[i] = neg[i - cut];
+		output[i] = zero - neg[i - cut];
 	}
 }
 
@@ -162,11 +158,11 @@ mod tests {
 	use cubecl::wgpu::WgpuRuntime;
 
 	fn create_meta_vector() -> MetaData {
-		MetaData::build(Box::new([1, 1]), Box::new([6, 1]))
+		MetaData::build(Box::new([1, 1]), Box::new([1, 6]))
 	}
 
 	fn create_meta_matrix() -> MetaData {
-		MetaData::build(Box::new([6, 1]), Box::new([6, 2]))
+		MetaData::build(Box::new([6, 1]), Box::new([2, 6]))
 	}
 
 	#[test]

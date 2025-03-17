@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Store - The Hitchhiker&#x27;s Guide to Use-AI.rs</title>
+        <title>Config - The Hitchhiker&#x27;s Guide to Use-AI.rs</title>
 
 
         <!-- Custom HTML head -->
@@ -152,22 +152,22 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="store"><a class="header" href="#store"><a href="">Store</a></a></h1>
-<h4 id="current"><a class="header" href="#current">Current</a></h4>
-<p><code>lib-store</code> is the first library of the Core of <em>Use-AI.es</em>. Here we find <code>ai_config.rs</code> and <code>mangodb.rs</code>.</p>
-<h4 id="future"><a class="header" href="#future">Future</a></h4>
-<p>Not much will happen here. Only when the Config is expanded we will see some changes here. Some additional Db request
-functions and some functions regarding Configs will be added here when needed.# Store</p>
+                        <h1 id="config"><a class="header" href="#config">Config</a></h1>
+<p><code>ai_config.rs</code>, is the entrypoint for the configuration file.</p>
+<ul>
+<li><code>Models</code>, will be provided by <code>lib-calculator</code> and</li>
+<li><code>DataSection</code>, will be provided by <code>lib-stage</code>.</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../tooling/useai.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../store/store.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../transformer/config.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../store/db.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -177,33 +177,17 @@ functions and some functions regarding Configs will be added here when needed.# 
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../tooling/useai.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../store/store.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../transformer/config.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../store/db.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 

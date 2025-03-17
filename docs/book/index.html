@@ -154,10 +154,17 @@
                     <main>
                         <p>At Use-AI.rs, we are building an open-source AI framework in Rust.
 Our goal is to create a concurrent, locally hostable AI agent for practical applications in production environments.</p>
-<p>To achieve this goal, we are building on top of Burn and CubeCL.
-We are working with a JSON configuration standard. This configuration file contains all the information required to transform data and execute various AI operations. CubeCL provides us with the necessary operational tools to achieve our aim of delivering a practical AI framework.</p>
-<p>For production coding, we will focus on implementing reinforcement learning (RL) algorithms such as Q-Learning and Deep Q-Networks. Additionally, we plan to implement ensemble learning algorithms. In the first iteration, we will use gradient-based decision trees (GBDT).</p>
-<h4 id="work-in-progress"><a class="header" href="#work-in-progress">Work in Progress</a></h4>
+<p>The different layers of abstraction build spaces for different professions. For <strong>Business Informatic Specialists</strong>, <strong>Mathematicians</strong>, and <strong>Computer Scientists</strong>, Use-AI.rs provides a comprehensive set of tools and libraries to build and extend AI applications.</p>
+<p>The entrypoint of Use-AI.rs is the <a href="/tooling/useai.html"><code>use_ai</code></a> crate. It provides a toolset for <strong>Business Informatic Specialists</strong> and <strong>Mathematicians</strong> to test and deploy AI applications with ease.
+<a href="/tooling/useai.html"><code>use_ai</code></a> also is a good starting point for <strong>Computer Scientists</strong> since it shows how to implement the underlying architecture of the framework.</p>
+<p>The underlying architecture is mostly interesting for <strong>Computer Scientists</strong> and can be found in the <code>core</code> crate. It contains the following modules:</p>
+<ul>
+<li><a href="/store/store.html"><code>lib-store</code></a>: A synchronous storage module with <a href="https://www.mongodb.com/">MangoDB</a>.</li>
+<li><a href="/stage/stage.html"><code>lib-stage</code></a>: Handles data processing and normalization with <a href="https://github.com/rayon-rs/rayon">Rayon</a> and <a href="https://github.com/rust-ndarray/ndarray">ndArray</a>.</li>
+<li><a href="/calc/calc.html"><code>lib-calculator</code></a>: Here we operate the GPU and build AI models with <a href="https://github.com/tracel-ai/cubecl">CubeCL</a>.</li>
+<li><a href="/macros/macros.html"><code>lib-proc_macros</code></a>: A set of procedural macros for simplifying common tasks in AI development.</li>
+</ul>
+<p>At <a href="/calc/model.html"><code>lib-calculator::model</code></a> we find a space also interesting for <strong>Mathematicians</strong> since it provides a set of easy to use tensor operations that can be used to build powerful AI models.</p>
 
                     </main>
 
@@ -182,22 +189,6 @@ We are working with a JSON configuration standard. This configuration file conta
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 

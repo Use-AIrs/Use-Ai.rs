@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Stage - The Hitchhiker&#x27;s Guide to Use-AI.rs</title>
+        <title>Model - The Hitchhiker&#x27;s Guide to Use-AI.rs</title>
 
 
         <!-- Custom HTML head -->
@@ -152,28 +152,21 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="stage"><a class="header" href="#stage"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-stage">Stage</a></a></h2>
-<h4 id="current"><a class="header" href="#current">Current</a></h4>
-<p>Here is where the construction site begins. Currently, we only have a CSV pipeline to show what the plan is with <code>lib-stager</code>.
-This pipeline shows how we want to handle data on a more abstract layer. For now, we just input some csv file and handle
-it from there with different operations on columns or the hole data. This is chosen because we want to reach a first complete
-pass through <em>Use-AI.rs</em> using a simple XGBoost algorithm for now. Till we expanded that simple XGBoost it's called GBDT here.</p>
-<h3 id="future"><a class="header" href="#future">Future</a></h3>
-<p>For DQNs and Q-learning we need to expand <code>lib-stage</code>. Goal is not to only use files instead this will be used to Configure
-a Data Stream which first, will enable the possibility to get Input from program external drivers and also, will add the
-possibility for communication between models. But to be able to implement such features we first need to focus on the
-<code>lib-calculator</code>.
-The functions as they are, will be renamed in near Future.</p>
+                        <h1 id="model"><a class="header" href="#model">Model</a></h1>
+<p>When you want to integrate a new <code>model</code> you can do that by doing these three things:</p>
+<ol>
+<li>Build a struct which includes tuples of <code>MetaData</code> and <code>Handle</code>. This structure is our abstract representation of the shared memory on the GPU. The macro <code> #[operator]</code> above your struct will allocate a <code>Tensor</code> on the GPU and leave you a <code>TensorHandelRef</code> to work with in the <code>operation</code></li>
+</ol>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../transformer/db.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../calc/config.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../stage/config.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../calc/operation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -183,33 +176,17 @@ The functions as they are, will be renamed in near Future.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../transformer/db.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../calc/config.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../stage/config.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../calc/operation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 

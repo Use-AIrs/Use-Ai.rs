@@ -48,8 +48,7 @@ impl<R: Runtime> PipelineExec<R> for ExecProd<R> {
 			);
 			Ok((md, output_handle))
 		} else {
-			let axis = if input.strides == [1, 1] { 1 } else { 0 };
-			if axis == 1 {
+			if input.strides == [1, 1] {
 				let output_handle = client.empty(4);
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
@@ -59,7 +58,7 @@ impl<R: Runtime> PipelineExec<R> for ExecProd<R> {
 					"Prod( in: {:?}, out: {:?}",
 					&input.shape, &output.shape
 				);
-				reduce::<R, f32, f32, Prod>(&client, input, output, axis, None)?;
+				reduce::<R, f32, f32, Prod>(&client, input, output, 1, None)?;
 
 				let md = MetaData::single();
 				Ok((md, output_handle))

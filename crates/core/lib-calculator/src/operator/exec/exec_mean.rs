@@ -37,11 +37,11 @@ impl<R: Runtime> PipelineExec<R> for ExecMean<R> {
 				)
 			};
 
+			println!();
 			println!(
 				"Mean3d( in: {:?}, out: {:?}",
 				&input.shape, &output.shape
 			);
-			println!();
 			reduce::<R, f32, f32, Mean>(&client, input, output, axis, None)?;
 
 			let md = MetaData::build(
@@ -50,18 +50,17 @@ impl<R: Runtime> PipelineExec<R> for ExecMean<R> {
 			);
 			Ok((md, output_handle))
 		} else {
-
 			let axis = if input.strides == [1, 1] { 1 } else { 0 };
 			if axis == 1 {
 				let output_handle = client.empty(4);
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
 				};
+				println!();
 				println!(
 					"Mean( in: {:?}, out: {:?}",
 					&input.shape, &output.shape
 				);
-				println!();
 				reduce::<R, f32, f32, Mean>(&client, input, output, axis, None)?;
 				let md = MetaData::single();
 				Ok((md, output_handle))
@@ -73,11 +72,11 @@ impl<R: Runtime> PipelineExec<R> for ExecMean<R> {
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &strides, &shape, 4)
 				};
+				println!();
 				println!(
 					"Mean( in: {:?}, out: {:?}",
 					&input.shape, &output.shape
 				);
-				println!();
 				reduce::<R, f32, f32, Mean>(&client, input, output, axis, None)?;
 				let md = MetaData::build(Box::new(strides), Box::new(shape));
 				Ok((md, output_handle))

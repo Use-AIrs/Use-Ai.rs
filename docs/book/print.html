@@ -216,6 +216,50 @@ Every <code>model</code> needs to implement the <code>Operation</code> trait</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="welcome-dev"><a class="header" href="#welcome-dev">Welcome, Dev!</a></h1>
 <p>Here you can find the Blog of <em>Use-AI.rs</em>. Here Developers who are currently actively Developing <em>Use-AI.rs</em> make technical
 discussions of the current state of <em>Use-AI.rs</em>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="introducing-action-space"><a class="header" href="#introducing-action-space">Introducing Action Space</a></h1>
+<h2 id="maintainers-comment--17032025"><a class="header" href="#maintainers-comment--17032025">Maintainer's Comment | 17.03.2025</a></h2>
+<p>Since I had a major illness, I was unable to post this blog as planned. Also, I wasn't able to code at the pace and with the quality I intended, which led to some errors in the code.
+The reason why I still decided to commit the code was that you guys can see what I've been working on and how I've been progressing.
+I finally got around to writing about <strong>Action Space</strong>, a procedural macro designed to compose tensor operation sequences in Rust. This is still not working properly, but I hope to fix it soon.</p>
+<h2 id="introduction"><a class="header" href="#introduction">Introduction</a></h2>
+<p>When working with AI models, especially in <strong>reinforcement learning</strong> and <strong>ensembled learning</strong>, you often end up chaining multiple operations on tensors. <strong>Action Space</strong> is a Rust procedural macro that makes composing these tensor operations straightforward.
+With <strong>Action Space</strong>, the goal was to abstract tensor operation sequences so that they can be easily composed and reused. This is intended to make it easier to manage and maintain complex tensor operations.</p>
+<h3 id="example-composing-tensor-operations"><a class="header" href="#example-composing-tensor-operations">Example: Composing Tensor Operations</a></h3>
+<p>Here's a basic example demonstrating how <strong>Action Space</strong> helps structure tensor computations in Rust:</p>
+<pre><pre class="playground"><code class="language-rust">use cubecl::wgpu::WgpuRuntime;
+use lib_proc_macros::action_space;
+
+fn main() {
+    let client = WgpuRuntime::client(&amp;Default::default());
+    let input = build_tensor();
+
+    let (metadata) = action_space!(
+        WgpuRuntime,
+        (input, ExecMean, output),
+        ((input, output), PrepResiduals),
+        (ExecSum),
+        (PrepSquare),
+        (ExecProd),
+    );
+
+    println!("Final output: {:?}", score);
+}</code></pre></pre>
+<h3 id="breaking-it-down"><a class="header" href="#breaking-it-down">Breaking It Down</a></h3>
+<ul>
+<li>The macro takes a <strong>Runtime</strong> to define the environment.</li>
+<li>The first tuple takes the <strong>input</strong> before the operations are applied.</li>
+<li>Operations from the <code>PipelineExec</code> and <code>PipelinePush</code> trait are applied sequentially.</li>
+<li>If we want to handle the <strong>output</strong> of a specific operation differently, we can add a variable name in the tuple behind the operation.</li>
+<li>When the operation needs a <strong>non-default input</strong>, we can specify it with a tuple before the operation.</li>
+<li>The <strong>default case</strong> takes the output of the previous operation and passes it to the next operation.</li>
+</ul>
+<p>For now, the goal here is that we can input either a <strong>1D, 2D, or 3D Tensor</strong>.</p>
+<ul>
+<li>A <strong>1D Tensor</strong> results in a <strong>Scalar</strong>.</li>
+<li>A <strong>2D Tensor</strong> results in a <strong>Vector</strong>.</li>
+<li>A <strong>3D Tensor</strong> results in a <strong>Matrix</strong>.</li>
+</ul>
+<p>This isn't working properly yet, and we also do not handle <strong>Runtime</strong> and <strong>Client</strong> as intended. This results in the plan to fix and improve this feature next.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="short-update"><a class="header" href="#short-update">Short Update</a></h1>
 <h2 id="maintainers-comment--12022025"><a class="header" href="#maintainers-comment--12022025">Maintainer's Comment | 12.02.2025</a></h2>
 <p>On the weekend I have Implemented the first <code>PipelineExec</code> to show how we want to use <code>cubecl-reduce</code> for the first Iteration of Use-AI.rs.
@@ -394,6 +438,22 @@ Once these foundational changes are complete, the next step will be to introduce
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

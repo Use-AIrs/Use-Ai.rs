@@ -55,11 +55,11 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 				)
 			};
 
+			println!();
 			println!(
 				"PrepRes( in: {:?}, out: {:?}",
 				&input_tensor.shape, &output_tensor_for_kernel.shape
 			);
-			println!();
 
 			unsafe {
 				prep_residuals::launch_unchecked::<f32, R>(
@@ -102,11 +102,11 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 				TensorHandleRef::<'_, R>::from_raw_parts(scalar_handle, &neg_strides, &neg_shape, 4)
 			};
 
+			println!();
 			println!(
 				"PrepRes( in: {:?}, out: {:?}",
 				&input_tensor.shape, &output_tensor_for_kernel.shape
 			);
-			println!();
 
 			unsafe {
 				prep_residuals::launch_unchecked::<f32, R>(
@@ -138,7 +138,7 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 }
 
 #[cube(launch_unchecked)]
-pub fn prep_residuals<T: Numeric>(
+pub fn prep_residuals<T: Float>(
 	input: &Tensor<T>,
 	neg: &Tensor<T>,
 	output: &mut Tensor<T>,

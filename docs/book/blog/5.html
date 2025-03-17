@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Calculator - The Hitchhiker&#x27;s Guide to Use-AI.rs</title>
+        <title>Introducing Action Space - The Hitchhiker&#x27;s Guide to Use-AI.rs</title>
 
 
         <!-- Custom HTML head -->
@@ -152,22 +152,60 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="calculator"><a class="header" href="#calculator"><a href="https://github.com/Use-AIrs/Use-Ai.rs/tree/main/crates/core/lib-calculator">Calculator</a></a></h1>
-<p>In <code>lib-calculator</code> the most crucial parts are the module <code>model</code> and the <code>operator</code>.
-In <code>model</code> we can easily build models within the <code>operation</code> trait which are supported by the <code>opertator</code> module and trait.
-So, the <code>operator</code> provides functions through the <code>PipelineExec</code> and <code>PipelinePush</code> traits.
-The <code>operator</code> will be executed on the GPUs Kernel.
-Every <code>model</code> needs to implement the <code>Operation</code> trait</p>
+                        <h1 id="introducing-action-space"><a class="header" href="#introducing-action-space">Introducing Action Space</a></h1>
+<h2 id="maintainers-comment--17032025"><a class="header" href="#maintainers-comment--17032025">Maintainer's Comment | 17.03.2025</a></h2>
+<p>Since I had a major illness, I was unable to post this blog as planned. Also, I wasn't able to code at the pace and with the quality I intended, which led to some errors in the code.
+The reason why I still decided to commit the code was that you guys can see what I've been working on and how I've been progressing.
+I finally got around to writing about <strong>Action Space</strong>, a procedural macro designed to compose tensor operation sequences in Rust. This is still not working properly, but I hope to fix it soon.</p>
+<h2 id="introduction"><a class="header" href="#introduction">Introduction</a></h2>
+<p>When working with AI models, especially in <strong>reinforcement learning</strong> and <strong>ensembled learning</strong>, you often end up chaining multiple operations on tensors. <strong>Action Space</strong> is a Rust procedural macro that makes composing these tensor operations straightforward.
+With <strong>Action Space</strong>, the goal was to abstract tensor operation sequences so that they can be easily composed and reused. This is intended to make it easier to manage and maintain complex tensor operations.</p>
+<h3 id="example-composing-tensor-operations"><a class="header" href="#example-composing-tensor-operations">Example: Composing Tensor Operations</a></h3>
+<p>Here's a basic example demonstrating how <strong>Action Space</strong> helps structure tensor computations in Rust:</p>
+<pre><pre class="playground"><code class="language-rust">use cubecl::wgpu::WgpuRuntime;
+use lib_proc_macros::action_space;
+
+fn main() {
+    let client = WgpuRuntime::client(&amp;Default::default());
+    let input = build_tensor();
+
+    let (metadata) = action_space!(
+        WgpuRuntime,
+        (input, ExecMean, output),
+        ((input, output), PrepResiduals),
+        (ExecSum),
+        (PrepSquare),
+        (ExecProd),
+    );
+
+    println!("Final output: {:?}", score);
+}</code></pre></pre>
+<h3 id="breaking-it-down"><a class="header" href="#breaking-it-down">Breaking It Down</a></h3>
+<ul>
+<li>The macro takes a <strong>Runtime</strong> to define the environment.</li>
+<li>The first tuple takes the <strong>input</strong> before the operations are applied.</li>
+<li>Operations from the <code>PipelineExec</code> and <code>PipelinePush</code> trait are applied sequentially.</li>
+<li>If we want to handle the <strong>output</strong> of a specific operation differently, we can add a variable name in the tuple behind the operation.</li>
+<li>When the operation needs a <strong>non-default input</strong>, we can specify it with a tuple before the operation.</li>
+<li>The <strong>default case</strong> takes the output of the previous operation and passes it to the next operation.</li>
+</ul>
+<p>For now, the goal here is that we can input either a <strong>1D, 2D, or 3D Tensor</strong>.</p>
+<ul>
+<li>A <strong>1D Tensor</strong> results in a <strong>Scalar</strong>.</li>
+<li>A <strong>2D Tensor</strong> results in a <strong>Vector</strong>.</li>
+<li>A <strong>3D Tensor</strong> results in a <strong>Matrix</strong>.</li>
+</ul>
+<p>This isn't working properly yet, and we also do not handle <strong>Runtime</strong> and <strong>Client</strong> as intended. This results in the plan to fix and improve this feature next.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../stage/output.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../blog/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../calc/config.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../blog/4.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -177,11 +215,11 @@ Every <code>model</code> needs to implement the <code>Operation</code> trait</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../stage/output.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../blog/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../calc/config.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../blog/4.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

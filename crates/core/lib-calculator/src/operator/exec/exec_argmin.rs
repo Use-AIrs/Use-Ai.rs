@@ -34,12 +34,11 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMax<R> {
 					4,
 				)
 			};
-
+			println!();
 			println!(
 				"ArgMax3d( in: {:?}, out: {:?}",
 				&input.shape, &output.shape
 			);
-			println!();
 			reduce::<R, f32, f32, ArgMax>(&client, input, output, axis, None)?;
 
 			let md = MetaData::build(
@@ -54,11 +53,11 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMax<R> {
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
 				};
+				println!();
 				println!(
 					"ArgMax( in: {:?}, out: {:?}",
 					&input.shape, &output.shape
 				);
-				println!();
 				reduce::<R, f32, f32, ArgMax>(&client, input, output, axis, None)?;
 				let md = MetaData::single();
 				Ok((md, output_handle))
@@ -70,6 +69,7 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMax<R> {
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &strides, &shape, 4)
 				};
+				println!();
 				println!(
 					"ArgMax( in: {:?}, out: {:?}",
 					&input.shape, &output.shape

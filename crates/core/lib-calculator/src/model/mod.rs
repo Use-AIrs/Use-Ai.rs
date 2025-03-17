@@ -36,7 +36,6 @@ mod tests {
 
 	#[test]
 	fn test_action_space_vector() -> Result<()> {
-		let client = WgpuRuntime::client(&Default::default());
 		let meta = create_meta_vector();
 		let (meta_input, handle_input) = meta.handle_from_vec::<WgpuRuntime>(vec![
 			1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
@@ -55,6 +54,7 @@ mod tests {
 			(ExecProd),
 		);
 
+		let client = WgpuRuntime::client(&Default::default());
 		let binding = score.1.binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);

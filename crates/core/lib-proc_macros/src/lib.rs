@@ -96,6 +96,10 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 	let mut code = TokenStream2::new();
 	let mut current_output = None;
 
+	code.extend(quote! {
+		let client = #runtime::client(&Default::default());
+	});
+
 	for (i, step) in steps.iter().enumerate() {
 		let op = &step.op;
 		let (a, b) = to_var(i);

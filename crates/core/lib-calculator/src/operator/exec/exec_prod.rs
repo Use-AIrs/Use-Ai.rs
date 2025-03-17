@@ -35,11 +35,11 @@ impl<R: Runtime> PipelineExec<R> for ExecProd<R> {
 				)
 			};
 
+			println!();
 			println!(
 				"Prod3d( in: {:?}, out: {:?}",
 				&input.shape, &output.shape
 			);
-			println!();
 			reduce::<R, f32, f32, Prod>(&client, input, output, axis, None)?;
 
 			let md = MetaData::build(
@@ -54,12 +54,11 @@ impl<R: Runtime> PipelineExec<R> for ExecProd<R> {
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
 				};
-
+				println!();
 				println!(
 					"Prod( in: {:?}, out: {:?}",
 					&input.shape, &output.shape
 				);
-				println!();
 				reduce::<R, f32, f32, Prod>(&client, input, output, axis, None)?;
 
 				let md = MetaData::single();
@@ -73,11 +72,11 @@ impl<R: Runtime> PipelineExec<R> for ExecProd<R> {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &strides, &shape, 4)
 				};
 
+				println!();
 				println!(
 					"Prod( in: {:?}, out: {:?}",
 					&input.shape, &output.shape
 				);
-				println!();
 				reduce::<R, f32, f32, Prod>(&client, input, output, axis, None)?;
 
 				let md = MetaData::build(Box::new(shape), Box::new(strides));

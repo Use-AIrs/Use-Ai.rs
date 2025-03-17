@@ -34,12 +34,11 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
 					4,
 				)
 			};
-
+			println!();
 			println!(
 				"ArgMin3d( in: {:?}, out: {:?}",
 				&input.shape, &output.shape
 			);
-			println!();
 			reduce::<R, f32, f32, ArgMin>(&client, input, output, axis, None)?;
 
 			let md = MetaData::build(
@@ -54,11 +53,11 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
 				};
+				println!();
 				println!(
 					"ArgMin( in: {:?}, out: {:?}",
 					&input.shape, &output.shape
 				);
-				println!();
 				reduce::<R, f32, f32, ArgMin>(&client, input, output, axis, None)?;
 				let md = MetaData::single();
 				Ok((md, output_handle))
@@ -70,11 +69,11 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &strides, &shape, 4)
 				};
+				println!();
 				println!(
 					"ArgMin( in: {:?}, out: {:?}",
 					&input.shape, &output.shape
 				);
-				println!();
 				reduce::<R, f32, f32, ArgMin>(&client, input, output, axis, None)?;
 				let md = MetaData::build(Box::new(strides), Box::new(shape));
 				Ok((md, output_handle))

@@ -16,6 +16,7 @@
   - [Config](calc/config.md)
   - [Operation](calc/operation.md)
 - [Blog](blog/README.md)
+  - [Introducing Action Space](blog/5.md)
   - [Short Update](blog/4.md)
   - [New Blog](blog/3.md)
   - [Approach](blog/2.md)

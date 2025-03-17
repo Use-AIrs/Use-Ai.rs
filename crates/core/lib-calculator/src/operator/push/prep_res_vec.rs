@@ -10,28 +10,26 @@ pub struct PrepResiduals<R: Runtime> {
 }
 
 impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
-	type Input<'i> = (&'i MetaData, &'i Handle, &'i Handle);
+	type Input<'i> = (
+		TensorHandleRef<'i, R>,
+		TensorHandleRef<'i, R>,
+	);
 
 	fn push<'i, 'o>(
 		input: Self::Input<'i>,
 		client: &ComputeClient<R::Server, R::Channel>,
 	) -> Result<TensorHandleRef<'o, R>> {
-		let (md0, t0_handle, t1_handle) = input;
+		let (t0, t1) = input;
+		let t1_len = t1.size();
 
-		let t0 = unsafe {
-			TensorHandleRef::<'i, R>::from_raw_parts(t0_handle, &md0.stride, &md0.shape, 4)
-		};
-
-		let t1_len = t1_handle.size();
-
-		let (output_handle, output_strides, output_shape) = if t1_len == 4 {
-			let n = md0.shape[1];
-			let output_shape = [2, n];
-			let output_strides = [n, 1];
+		if t1_len == 4 {
+			let n = t0.shape[1];
+			let output_shape = Box::leak(Box::new([2, n]));
+			let output_strides = Box::leak(Box::new([n, 1]));
 			let total_bytes = 2 * n * 4;
-			let output_handle = client.empty(total_bytes);
+			let output_handle = Box::leak(Box::new(client.empty(total_bytes)));
 
-			let binding = t1_handle.clone().binding();
+			let binding = t1.handle.clone().binding();
 			let bytes = client.read_one(binding);
 			let output_value = f32::from_bytes(&bytes);
 			let value = output_value[0];
@@ -39,14 +37,14 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 			let vec = vec![value; n];
 			let neg_handle = client.create(f32::as_bytes(vec.as_slice()));
 			let neg_tensor = unsafe {
-				TensorHandleRef::<'_, R>::from_raw_parts(&neg_handle, &md0.stride, &md0.shape, 4)
+				TensorHandleRef::<'_, R>::from_raw_parts(&neg_handle, t0.strides, t0.shape, 4)
 			};
 
-			let output_tensor_for_kernel = unsafe {
+			let output_tensor = unsafe {
 				TensorHandleRef::<'_, R>::from_raw_parts(
-					&output_handle,
-					&output_strides,
-					&output_shape,
+					output_handle,
+					output_strides,
+					output_shape,
 					4,
 				)
 			};
@@ -54,7 +52,7 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 			println!();
 			println!(
 				"PrepRes( in: {:?}, out: {:?}",
-				&t0.shape, &output_tensor_for_kernel.shape
+				&t0.shape, &output_tensor.shape
 			);
 
 			unsafe {
@@ -64,44 +62,41 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 					CubeDim::new((n * 2) as u32, 1, 1),
 					t0.as_tensor_arg(1),
 					neg_tensor.as_tensor_arg(1),
-					output_tensor_for_kernel.as_tensor_arg(1),
+					output_tensor.as_tensor_arg(1),
 				);
 			}
-
-			(
-				output_handle,
-				output_strides.to_vec(),
-				output_shape.to_vec(),
-			)
-		} else {
-			let m = md0.shape[0];
-			let n = md0.shape[1];
-			let output_shape = [m, n, 2];
-			let output_strides = [n, m, 1];
-			let size = m * n * 2;
-			let total_bytes = size * 4;
-
-			let output_handle = client.empty(total_bytes);
-
-			let output_tensor_for_kernel = unsafe {
-				TensorHandleRef::<'_, R>::from_raw_parts(
-					&output_handle,
-					&output_strides,
-					&output_shape,
+			let output_tensor = unsafe {
+				TensorHandleRef::<'o, R>::from_raw_parts(
+					output_handle,
+					output_strides,
+					output_shape,
 					4,
 				)
 			};
+			Ok(output_tensor)
+		} else {
+			let m = t0.shape[0];
+			let n = t0.shape[1];
+			let output_shape = Box::leak(Box::new([m, n, 2]));
+			let output_strides = Box::leak(Box::new([n, m, 1]));
+			let size = m * n * 2;
+			let total_bytes = size * 4;
 
-			let neg_shape = [m, 1];
-			let neg_strides = [1, 1];
-			let neg_tensor = unsafe {
-				TensorHandleRef::<'_, R>::from_raw_parts(t1_handle, &neg_strides, &neg_shape, 4)
+			let output_handle = Box::leak(Box::new(client.empty(total_bytes)));
+
+			let output_tensor = unsafe {
+				TensorHandleRef::<'_, R>::from_raw_parts(
+					output_handle,
+					output_strides,
+					output_shape,
+					4,
+				)
 			};
 
 			println!();
 			println!(
 				"PrepRes( in: {:?}, out: {:?}",
-				&t0.shape, &output_tensor_for_kernel.shape
+				&t0.shape, &output_tensor.shape
 			);
 
 			unsafe {
@@ -110,26 +105,20 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 					CubeCount::Static(1, 1, 1),
 					CubeDim::new(n as u32, 1, 1),
 					t0.as_tensor_arg(1),
-					neg_tensor.as_tensor_arg(1),
-					output_tensor_for_kernel.as_tensor_arg(1),
+					t1.as_tensor_arg(1),
+					output_tensor.as_tensor_arg(1),
 				);
 			}
-			(
-				output_handle,
-				output_strides.to_vec(),
-				output_shape.to_vec(),
-			)
-		};
-
-		let output_tensor = unsafe {
-			let handle_ref: &'o Handle = std::mem::transmute(&output_handle);
-			let strides_ref: &'o [usize] = std::mem::transmute(output_strides.as_slice());
-			let shape_ref: &'o [usize] = std::mem::transmute(output_shape.as_slice());
-
-			TensorHandleRef::<'o, R>::from_raw_parts(handle_ref, strides_ref, shape_ref, 4)
-		};
-
-		Ok(output_tensor)
+			let output_tensor = unsafe {
+				TensorHandleRef::<'_, R>::from_raw_parts(
+					output_handle,
+					output_strides,
+					output_shape,
+					4,
+				)
+			};
+			Ok(output_tensor)
+		}
 	}
 }
 

@@ -45,7 +45,7 @@ mod tests {
 		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 		let start = Instant::now();
 		let output_handle = ExecArgMin::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
+		let binding = output_handle.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		let elapsed = start.elapsed();
@@ -64,7 +64,7 @@ mod tests {
 		let dummy_tensor = create_random_matrix(&client, shape, stride);
 		let start = Instant::now();
 		let output_handle = ExecArgMin::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
+		let binding = output_handle.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		let elapsed = start.elapsed();
@@ -84,7 +84,7 @@ mod tests {
 		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 		let start = Instant::now();
 		let output_handle = ExecArgMax::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
+		let binding = output_handle.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		let elapsed = start.elapsed();
@@ -103,7 +103,7 @@ mod tests {
 		let dummy_tensor = create_random_matrix(&client, shape, stride);
 		let start = Instant::now();
 		let output_handle = ExecArgMax::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
+		let binding = output_handle.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		let elapsed = start.elapsed();
@@ -123,7 +123,7 @@ mod tests {
 		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 		let start = Instant::now();
 		let output_handle = ExecProd::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
+		let binding = output_handle.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		let elapsed = start.elapsed();
@@ -142,7 +142,7 @@ mod tests {
 		let dummy_tensor = create_random_matrix(&client, shape, stride);
 		let start = Instant::now();
 		let output_handle = ExecProd::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
+		let binding = output_handle.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		let elapsed = start.elapsed();
@@ -162,7 +162,7 @@ mod tests {
 		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 		let start = Instant::now();
 		let output_handle = ExecMean::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
+		let binding = output_handle.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		let elapsed = start.elapsed();
@@ -181,7 +181,7 @@ mod tests {
 		let dummy_tensor = create_random_matrix(&client, shape, stride);
 		let start = Instant::now();
 		let output_handle = ExecMean::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
+		let binding = output_handle.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		let elapsed = start.elapsed();
@@ -201,7 +201,7 @@ mod tests {
 		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 		let start = Instant::now();
 		let output_handle = ExecSum::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
+		let binding = output_handle.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		let elapsed = start.elapsed();
@@ -220,7 +220,7 @@ mod tests {
 		let dummy_tensor = create_random_matrix(&client, shape, stride);
 		let start = Instant::now();
 		let output_handle = ExecSum::<WgpuRuntime>::exec(dummy_tensor, &client)?;
-		let binding = output_handle.1.binding();
+		let binding = output_handle.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		let elapsed = start.elapsed();

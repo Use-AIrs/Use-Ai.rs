@@ -1,12 +1,10 @@
 use crate::error::Result;
 use crate::operator::exec::base::PipelineExec;
-use crate::MetaData;
 
 use cubecl::client::ComputeClient;
 use cubecl::prelude::TensorHandleRef;
 use cubecl::reduce::instructions::Mean;
 use cubecl::reduce::reduce;
-use cubecl::server::Handle;
 use cubecl::Runtime;
 use std::marker::PhantomData;
 
@@ -15,24 +13,24 @@ pub struct ExecMean<R: Runtime> {
 }
 
 impl<R: Runtime> PipelineExec<R> for ExecMean<R> {
-	fn exec(
-		input: TensorHandleRef<R>,
+	fn exec<'i, 'o>(
+		input: TensorHandleRef<'i, R>,
 		client: &ComputeClient<R::Server, R::Channel>,
-	) -> Result<(MetaData, Handle)> {
+	) -> Result<TensorHandleRef<'o, R>> {
 		if input.shape.len() == 3 {
 			let m = input.shape[0];
 			let n = input.shape[1];
 			let axis = 2;
 
-			let output_shape = [m, n];
-			let output_strides = [n, 1];
-			let output_handle = client.empty(m * n * 4);
+			let output_shape = Box::leak(Box::new([m, n]));
+			let output_strides = Box::leak(Box::new([n, 1]));
+			let output_handle = Box::leak(Box::new(client.empty(m * n * 4)));
 
 			let output = unsafe {
 				TensorHandleRef::<R>::from_raw_parts(
-					&output_handle,
-					&output_strides,
-					&output_shape,
+					output_handle,
+					output_strides,
+					output_shape,
 					4,
 				)
 			};
@@ -43,15 +41,18 @@ impl<R: Runtime> PipelineExec<R> for ExecMean<R> {
 				&input.shape, &output.shape
 			);
 			reduce::<R, f32, f32, Mean>(&client, input, output, axis, None)?;
-
-			let md = MetaData::build(
-				Box::new(output_strides),
-				Box::new(output_shape),
-			);
-			Ok((md, output_handle))
+			let output = unsafe {
+				TensorHandleRef::<R>::from_raw_parts(
+					output_handle,
+					output_strides,
+					output_shape,
+					4,
+				)
+			};
+			Ok(output)
 		} else {
 			if input.strides == [1, 1] {
-				let output_handle = client.empty(4);
+				let output_handle = Box::leak(Box::new(client.empty(4)));
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
 				};
@@ -61,15 +62,17 @@ impl<R: Runtime> PipelineExec<R> for ExecMean<R> {
 					&input.shape, &output.shape
 				);
 				reduce::<R, f32, f32, Mean>(&client, input, output, 1, None)?;
-				let md = MetaData::single();
-				Ok((md, output_handle))
+				let output = unsafe {
+					TensorHandleRef::<R>::from_raw_parts(output_handle, &[1, 1], &[1, 1], 4)
+				};
+				Ok(output)
 			} else {
 				let n = input.shape[0];
-				let shape = [n, 1];
-				let strides = [1, 1];
-				let output_handle = client.empty(n * 4);
+				let shape = Box::leak(Box::new([n, 1]));
+				let strides = Box::leak(Box::new([1, 1]));
+				let output_handle = Box::leak(Box::new(client.empty(n * 4)));
 				let output = unsafe {
-					TensorHandleRef::<R>::from_raw_parts(&output_handle, &strides, &shape, 4)
+					TensorHandleRef::<R>::from_raw_parts(output_handle, strides, shape, 4)
 				};
 				println!();
 				println!(
@@ -77,8 +80,10 @@ impl<R: Runtime> PipelineExec<R> for ExecMean<R> {
 					&input.shape, &output.shape
 				);
 				reduce::<R, f32, f32, Mean>(&client, input, output, 1, None)?;
-				let md = MetaData::build(Box::new(strides), Box::new(shape));
-				Ok((md, output_handle))
+				let output = unsafe {
+					TensorHandleRef::<R>::from_raw_parts(output_handle, strides, shape, 4)
+				};
+				Ok(output)
 			}
 		}
 	}

@@ -20,7 +20,7 @@ mod tests {
 		let data: Vec<f32> = (0..len).map(|_| rng.gen()).collect();
 		let handle = client.create(f32::as_bytes(&data));
 		let static_handle: &'static Handle = Box::leak(Box::new(handle));
-		unsafe { TensorHandleRef::from_raw_parts(static_handle, stride, shape, data.len()) }
+		unsafe { TensorHandleRef::from_raw_parts(static_handle, stride, shape, 4) }
 	}
 
 	fn create_random_matrix(
@@ -33,7 +33,7 @@ mod tests {
 		let data: Vec<f32> = (0..total).map(|_| rng.gen()).collect();
 		let handle = client.create(f32::as_bytes(&data));
 		let static_handle: &'static Handle = Box::leak(Box::new(handle));
-		unsafe { TensorHandleRef::from_raw_parts(static_handle, stride, shape, total) }
+		unsafe { TensorHandleRef::from_raw_parts(static_handle, stride, shape, 4) }
 	}
 
 	#[test]

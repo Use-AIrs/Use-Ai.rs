@@ -1,6 +1,6 @@
 # [Store]()
 #### Current
-`lib-store` is the first library of the Core of *Use-AI.es*. Here we find `ai_config.rs` and `mangodb.rs`.
+`lib-store` is the first library of the Core of *Use-AI.rs*. Here we find `ai_config.rs` and `mangodb.rs`.
 
 #### Future
 Not much will happen here. Only when the Config is expanded we will see some changes here. Some additional Db request

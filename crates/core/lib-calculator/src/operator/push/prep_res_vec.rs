@@ -138,7 +138,7 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 }
 
 #[cube(launch_unchecked)]
-pub fn prep_residuals<T: Float>(
+pub fn prep_residuals<T: Numeric>(
 	input: &Tensor<T>,
 	neg: &Tensor<T>,
 	output: &mut Tensor<T>,

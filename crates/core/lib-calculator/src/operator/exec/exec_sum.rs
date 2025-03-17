@@ -65,9 +65,8 @@ impl<R: Runtime> PipelineExec<R> for ExecSum<R> {
 				Ok((md, output_handle))
 			} else {
 				let n = input.shape[0];
-				let m = input.shape[1];
-				let shape = [1, m];
-				let strides = [m, 1];
+				let shape = [n, 1];
+				let strides = [1, 1];
 				let output_handle = client.empty(n * 4);
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &strides, &shape, 4)
@@ -78,7 +77,7 @@ impl<R: Runtime> PipelineExec<R> for ExecSum<R> {
 					&input.shape, &output.shape
 				);
 
-				reduce::<R, f32, f32, Sum>(&client, input, output, 0, None)?;
+				reduce::<R, f32, f32, Sum>(&client, input, output, 1, None)?;
 				let md = MetaData::build(Box::new(strides), Box::new(shape));
 				Ok((md, output_handle))
 			}

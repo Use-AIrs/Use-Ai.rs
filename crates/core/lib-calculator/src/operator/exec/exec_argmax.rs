@@ -3,16 +3,16 @@ use crate::operator::exec::base::PipelineExec;
 use crate::MetaData;
 
 use cubecl::prelude::*;
-use cubecl::reduce::instructions::ArgMin;
+use cubecl::reduce::instructions::ArgMax;
 use cubecl::reduce::reduce;
 use cubecl::server::Handle;
 use std::marker::PhantomData;
 
-pub struct ExecArgMin<R: Runtime> {
+pub struct ExecArgMax<R: Runtime> {
 	_phantom: PhantomData<R>,
 }
 
-impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
+impl<R: Runtime> PipelineExec<R> for ExecArgMax<R> {
 	fn exec(
 		input: TensorHandleRef<R>,
 		client: &ComputeClient<R::Server, R::Channel>,
@@ -36,10 +36,10 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
 			};
 			println!();
 			println!(
-				"ArgMin3d( in: {:?}, out: {:?}",
+				"ArgMax3d( in: {:?}, out: {:?}",
 				&input.shape, &output.shape
 			);
-			reduce::<R, f32, f32, ArgMin>(&client, input, output, axis, None)?;
+			reduce::<R, f32, f32, ArgMax>(&client, input, output, axis, None)?;
 
 			let md = MetaData::build(
 				Box::new(output_strides),
@@ -55,26 +55,26 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
 				};
 				println!();
 				println!(
-					"ArgMin( in: {:?}, out: {:?}",
+					"ArgMax( in: {:?}, out: {:?}",
 					&input.shape, &output.shape
 				);
-				reduce::<R, f32, f32, ArgMin>(&client, input, output, axis, None)?;
+				reduce::<R, f32, f32, ArgMax>(&client, input, output, axis, None)?;
 				let md = MetaData::single();
 				Ok((md, output_handle))
 			} else {
-				let n = input.shape[1];
-				let shape = [1, n];
-				let strides = [n, 1];
+				let n = input.shape[0];
+				let shape = [n, 1];
+				let strides = [1, 1];
 				let output_handle = client.empty(n * 4);
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &strides, &shape, 4)
 				};
 				println!();
 				println!(
-					"ArgMin( in: {:?}, out: {:?}",
+					"ArgMax( in: {:?}, out: {:?}",
 					&input.shape, &output.shape
 				);
-				reduce::<R, f32, f32, ArgMin>(&client, input, output, axis, None)?;
+				reduce::<R, f32, f32, ArgMax>(&client, input, output, 1, None)?;
 				let md = MetaData::build(Box::new(strides), Box::new(shape));
 				Ok((md, output_handle))
 			}

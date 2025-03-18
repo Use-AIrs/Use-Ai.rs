@@ -202,7 +202,7 @@ mod tests {
 		let elapsed = start.elapsed();
 
 		println!(
-			"Output = {:?}, Time = {:?}",
+			"Output = {:?}, Time = {:?} UB",
 			output_values, elapsed
 		);
 		println!();
@@ -239,7 +239,7 @@ mod tests {
 		let elapsed = start.elapsed();
 
 		println!(
-			"Output = {:?}, Time = {:?}",
+			"Output = {:?}, Time = {:?} UB",
 			output_values, elapsed
 		);
 		println!();

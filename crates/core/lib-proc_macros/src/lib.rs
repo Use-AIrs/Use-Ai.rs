@@ -17,13 +17,9 @@ struct ActionStep {
 	output: Option<Expr>,
 }
 
-fn to_var(idx: usize) -> (Ident, Ident) {
-	let a = format!("a{}", idx);
-	let b = format!("b{}", idx);
-	(
-		Ident::new(&a, Span::call_site()),
-		Ident::new(&b, Span::call_site()),
-	)
+fn to_var(idx: usize) -> Ident {
+	let t = format!("t{}", idx);
+	Ident::new(&t, Span::call_site())
 }
 
 impl Parse for ActionStep {
@@ -35,7 +31,7 @@ impl Parse for ActionStep {
 			let fork = content.fork();
 			if let Ok(op) = fork.parse::<Path>() {
 				if fork.is_empty() {
-					content.parse::<Path>()?; // Consume the path
+					content.parse::<Path>()?;
 					return Ok(ActionStep {
 						inputs: None,
 						op,
@@ -102,7 +98,7 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 
 	for (i, step) in steps.iter().enumerate() {
 		let op = &step.op;
-		let (a, b) = to_var(i);
+		let t = to_var(i);
 
 		if i == 0 && step.inputs.is_none() {
 			return syn::Error::new(
@@ -114,35 +110,71 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 		}
 
 		if let Some(inputs) = &step.inputs {
-			if op
-				.segments
-				.last()
-				.unwrap()
-				.ident
-				.to_string()
-				.starts_with("Exec")
-			{
+			// Only create a clone for the first step with inputs
+			if i == 0 {
 				code.extend(quote! {
-					let (#a, #b) = #op::<#runtime>::exec(#inputs, &client)?;
+					let clone = unsafe {
+						TensorHandleRef::from_raw_parts(
+							&#inputs.handle,
+							&#inputs.strides,
+							&#inputs.shape,
+							4
+						)
+					};
 				});
-				current_output = Some(quote! { (#a, #b) });
-			} else if op
-				.segments
-				.last()
-				.unwrap()
-				.ident
-				.to_string()
-				.starts_with("Prep")
-			{
-				code.extend(quote! {
-					let #a = #op::<#runtime>::push(#inputs, &client)?;
-				});
-				current_output = Some(quote! { #a });
+
+				if op
+					.segments
+					.last()
+					.unwrap()
+					.ident
+					.to_string()
+					.starts_with("Exec")
+				{
+					code.extend(quote! {
+						let #t = #op::<#runtime>::exec(clone, &client)?;
+					});
+					current_output = Some(quote! { #t });
+				} else if op
+					.segments
+					.last()
+					.unwrap()
+					.ident
+					.to_string()
+					.starts_with("Prep")
+				{
+					code.extend(quote! {
+						let #t = #op::<#runtime>::push(clone, &client)?;
+					});
+					current_output = Some(quote! { #t });
+				}
 			} else {
-				code.extend(quote! {
-					let #a = #op::<#runtime>::push(#inputs, &client)?;
-				});
-				current_output = Some(quote! { #a });
+				// For subsequent steps, use the inputs directly without cloning
+				if op
+					.segments
+					.last()
+					.unwrap()
+					.ident
+					.to_string()
+					.starts_with("Exec")
+				{
+					code.extend(quote! {
+						let #t = #op::<#runtime>::exec(#inputs, &client)?;
+					});
+					current_output = Some(quote! { #t });
+				} else if op
+					.segments
+					.last()
+					.unwrap()
+					.ident
+					.to_string()
+					.starts_with("Prep")
+				{
+					code.extend(quote! {
+						let #t = #op::<#runtime>::push(#inputs, &client)?;
+					});
+					current_output = Some(quote! { #t });
+				}
 			}
 		} else {
 			if let Some(prev_output) = current_output {
@@ -155,9 +187,9 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 					.starts_with("Exec")
 				{
 					code.extend(quote! {
-						let (#a, #b) = #op::<#runtime>::exec(#prev_output, &client)?;
+						let #t = #op::<#runtime>::exec(#prev_output, &client)?;
 					});
-					current_output = Some(quote! { (&#a, &#b) });
+					current_output = Some(quote! { #t });
 				} else if op
 					.segments
 					.last()
@@ -167,14 +199,14 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 					.starts_with("Prep")
 				{
 					code.extend(quote! {
-						let #a = #op::push(#prev_output, &client)?;
+						let #t = #op::push(#prev_output, &client)?;
 					});
-					current_output = Some(quote! { #a });
+					current_output = Some(quote! { #t });
 				} else {
 					code.extend(quote! {
-						let #a = #op::<#runtime>::push(#prev_output, &client)?;
+						let #t = #op::<#runtime>::push(#prev_output, &client)?;
 					});
-					current_output = Some(quote! { #a });
+					current_output = Some(quote! { #t });
 				}
 			} else {
 				return syn::Error::new(
@@ -188,15 +220,15 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 
 		if let Some(output_var) = &step.output {
 			code.extend(quote! {
-				let #output_var = #b;
+				let #output_var = #t;
 			});
 		}
 	}
 
 	let last_idx = steps.len() - 1;
-	let (last_a, last_b) = to_var(last_idx);
+	let t_out = to_var(last_idx);
 	code.extend(quote! {
-		(#last_a, #last_b)
+	#t_out
 	});
 
 	let output = quote! {

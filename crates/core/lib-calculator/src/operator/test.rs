@@ -1,9 +1,7 @@
-/*
 #[cfg(test)]
 mod tests {
 	use crate::error::Result;
 	use crate::operator::*;
-	use crate::utils::to_tref;
 	use crate::MetaData;
 	use cubecl::wgpu::WgpuRuntime;
 	use lib_proc_macros::action_space;
@@ -19,29 +17,21 @@ mod tests {
 	#[test]
 	fn test_action_space_vector() -> Result<()> {
 		let meta = create_meta_vector();
-		let cpu_tensor = meta.cputensor_from_vec::<WgpuRuntime>(vec![
+		let tensor = meta.tensorref_from_vec::<WgpuRuntime>(vec![
 			1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
 		]);
-		let some_tensor = to_tref::<WgpuRuntime>((&cpu_tensor.meta, &cpu_tensor.handle));
 
 		let score = action_space!(
 			WgpuRuntime,
-			(some_tensor, ExecMean, some_output),
-			(
-				(
-					&cpu_tensor.meta,
-					&cpu_tensor.handle,
-					&some_output
-				),
-				PrepResiduals
-			),
+			(tensor, ExecMean, output_handle),
+			((tensor, output_handle), PrepResiduals),
 			(ExecSum),
 			(PrepSquare),
 			(ExecProd),
 		);
 
 		let client = WgpuRuntime::client(&Default::default());
-		let binding = score.1.binding();
+		let binding = score.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		println!("Output = {:?}", output_values);
@@ -52,31 +42,24 @@ mod tests {
 	fn test_action_space_matrix() -> Result<()> {
 		let client = WgpuRuntime::client(&Default::default());
 		let meta = create_meta_matrix();
-		let cpu_tensor = meta.cputensor_from_vec::<WgpuRuntime>(vec![
+		let tensor = meta.tensorref_from_vec::<'static, WgpuRuntime>(vec![
 			1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
 		]);
-		let some_tensor = to_tref::<WgpuRuntime>((&cpu_tensor.meta, &cpu_tensor.handle));
-		let score = action_space!(
+
+        let score = action_space!(
 			WgpuRuntime,
-			(some_tensor, ExecMean, output_handle),
-			(
-				(
-					&cpu_tensor.meta,
-					&cpu_tensor.handle,
-					&output_handle
-				),
-				PrepResiduals
-			),
+			(tensor, ExecMean, output_handle),
+			((tensor, output_handle), PrepResiduals),
 			(ExecSum),
 			(PrepSquare),
 			(ExecProd),
 		);
 
-		let binding = score.1.binding();
+
+		let binding = score.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
 		println!("Output = {:?}", output_values);
 		Ok(())
 	}
 }
-*/

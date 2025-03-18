@@ -8,7 +8,7 @@ pub struct PrepSquare<R: Runtime> {
 }
 
 impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
-	type Input<'i> = (TensorHandleRef<'i, R>);
+	type Input<'i> = TensorHandleRef<'i, R>;
 
 	fn push<'i, 'o>(
 		input: Self::Input<'i>,

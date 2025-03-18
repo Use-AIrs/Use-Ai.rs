@@ -34,6 +34,7 @@ mod tests {
 		let binding = score.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
+		println!();
 		println!("Output = {:?}", output_values);
 		Ok(())
 	}
@@ -46,7 +47,7 @@ mod tests {
 			1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
 		]);
 
-        let score = action_space!(
+		let score = action_space!(
 			WgpuRuntime,
 			(tensor, ExecMean, output_handle),
 			((tensor, output_handle), PrepResiduals),
@@ -55,10 +56,10 @@ mod tests {
 			(ExecProd),
 		);
 
-
 		let binding = score.handle.clone().binding();
 		let bytes = client.read_one(binding);
 		let output_values = f32::from_bytes(&bytes);
+		println!();
 		println!("Output = {:?}", output_values);
 		Ok(())
 	}

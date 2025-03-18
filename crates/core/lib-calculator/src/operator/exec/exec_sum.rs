@@ -18,12 +18,9 @@ impl<R: Runtime> PipelineExec<R> for ExecSum<R> {
 		if input.shape.len() == 3 {
 			let m = input.shape[0];
 			let n = input.shape[1];
-			print!("Sum3d( m: {:?}, n: {:?}", &m, &n);
 
-			let axis = 1;
-
-			let output_shape = Box::leak(Box::new([m, n, 0]));
-			let output_strides = Box::leak(Box::new([n, 1, 0]));
+			let output_shape = Box::leak(Box::new([m, n, 1]));
+			let output_strides = Box::leak(Box::new([n, 1, 1]));
 			let output_handle = Box::leak(Box::new(client.empty(m * n * 4)));
 
 			let output = unsafe {
@@ -34,13 +31,13 @@ impl<R: Runtime> PipelineExec<R> for ExecSum<R> {
 					4,
 				)
 			};
-			println!();
+
 			println!(
-				"Sum3d( in: {:?}, out: {:?}",
+				"Sum3d( in: {:?}, out: {:?} )",
 				&input.shape, &output.shape
 			);
 
-			reduce::<R, f32, f32, Sum>(&client, input, output, axis, None)?;
+			reduce::<R, f32, f32, Sum>(&client, input, output, 2, None)?;
 			let output = unsafe {
 				TensorHandleRef::<R>::from_raw_parts(
 					output_handle,
@@ -56,9 +53,8 @@ impl<R: Runtime> PipelineExec<R> for ExecSum<R> {
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(output_handle, &[1, 1], &[1, 1], 4)
 				};
-				println!();
 				println!(
-					"Sum( in: {:?}, out: {:?}",
+					"Sum( in: {:?}, out: {:?} )",
 					&input.shape, &output.shape
 				);
 
@@ -76,9 +72,8 @@ impl<R: Runtime> PipelineExec<R> for ExecSum<R> {
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(output_handle, strides, &shape, 4)
 				};
-				println!();
 				println!(
-					"Sum( in: {:?}, out: {:?}",
+					"Sum( in: {:?}, out: {:?} )",
 					&input.shape, &output.shape
 				);
 

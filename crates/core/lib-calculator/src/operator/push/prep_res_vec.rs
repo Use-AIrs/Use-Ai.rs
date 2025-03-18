@@ -47,7 +47,6 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 				)
 			};
 
-			println!();
 			println!(
 				"PrepRes( in: {:?}, out: {:?}",
 				&t0.shape, &output_tensor.shape
@@ -91,7 +90,6 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 				)
 			};
 
-			println!();
 			println!(
 				"PrepRes( in: {:?}, out: {:?}",
 				&t0.shape, &output_tensor.shape

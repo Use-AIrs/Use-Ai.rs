@@ -32,7 +32,6 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
 					4,
 				)
 			};
-			println!();
 			println!(
 				"ArgMin3d( in: {:?}, out: {:?}",
 				&input.shape, &output.shape
@@ -54,7 +53,6 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
 				};
-				println!();
 				println!(
 					"ArgMin( in: {:?}, out: {:?}",
 					&input.shape, &output.shape
@@ -72,7 +70,6 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(output_handle, strides, shape, 4)
 				};
-				println!();
 				println!(
 					"ArgMin( in: {:?}, out: {:?}",
 					&input.shape, &output.shape

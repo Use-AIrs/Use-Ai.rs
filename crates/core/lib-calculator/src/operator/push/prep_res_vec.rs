@@ -19,24 +19,12 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 	) -> Result<TensorHandleRef<'o, R>> {
 		let (t0, t1) = input;
 		let t1_len = t1.size();
-
 		if t1_len == 4 {
 			let n = t0.shape[1];
 			let output_shape = Box::leak(Box::new([2, n]));
 			let output_strides = Box::leak(Box::new([n, 1]));
 			let total_bytes = 2 * n * 4;
 			let output_handle = Box::leak(Box::new(client.empty(total_bytes)));
-
-			let binding = t1.handle.clone().binding();
-			let bytes = client.read_one(binding);
-			let output_value = f32::from_bytes(&bytes);
-			let value = output_value[0];
-
-			let vec = vec![value; n];
-			let neg_handle = client.create(f32::as_bytes(vec.as_slice()));
-			let neg_tensor = unsafe {
-				TensorHandleRef::<'_, R>::from_raw_parts(&neg_handle, t0.strides, t0.shape, 4)
-			};
 
 			let output_tensor = unsafe {
 				TensorHandleRef::<'_, R>::from_raw_parts(
@@ -46,19 +34,17 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 					4,
 				)
 			};
-
 			println!(
 				"PrepRes( in: {:?}, out: {:?}",
 				&t0.shape, &output_tensor.shape
 			);
-
 			unsafe {
 				prep_residuals::launch_unchecked::<f32, R>(
 					&client,
 					CubeCount::Static(1, 1, 1),
 					CubeDim::new((n * 2) as u32, 1, 1),
 					t0.as_tensor_arg(1),
-					neg_tensor.as_tensor_arg(1),
+					t1.as_tensor_arg(1),
 					output_tensor.as_tensor_arg(1),
 				);
 			}
@@ -78,9 +64,7 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 			let output_strides = Box::leak(Box::new([n, m, 1]));
 			let size = m * n * 2;
 			let total_bytes = size * 4;
-
 			let output_handle = Box::leak(Box::new(client.empty(total_bytes)));
-
 			let output_tensor = unsafe {
 				TensorHandleRef::<'_, R>::from_raw_parts(
 					output_handle,
@@ -89,12 +73,10 @@ impl<R: Runtime> PipelinePush<R> for PrepResiduals<R> {
 					4,
 				)
 			};
-
 			println!(
 				"PrepRes( in: {:?}, out: {:?}",
 				&t0.shape, &output_tensor.shape
 			);
-
 			unsafe {
 				prep_residuals::launch_unchecked::<f32, R>(
 					&client,
@@ -125,12 +107,17 @@ pub fn prep_residuals<T: Numeric>(
 	output: &mut Tensor<T>,
 ) {
 	let zero = T::from_int(0);
+	let a = input.stride(0);
+	let cut = input.len();
 	let len = output.len();
-	let cut = len / 2u32;
-	for i in 0..cut {
+	for i in 0..a {
 		output[i] = input[i];
 	}
+	let mut g = 0;
 	for i in cut..len {
-		output[i] = zero - neg[i - cut];
+		output[i] = zero - neg[g];
+		if g % a == 0 {
+			g += 1;
+		}
 	}
 }

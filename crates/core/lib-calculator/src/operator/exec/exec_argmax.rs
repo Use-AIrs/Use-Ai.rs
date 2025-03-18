@@ -39,8 +39,14 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMax<R> {
 			);
 			reduce::<R, f32, f32, ArgMax>(client, input, output, axis, None)?;
 
-			let output =
-				unsafe { TensorHandleRef::<R>::from_raw_parts(output_handle, &[1, 1], &[1, 1], 4) };
+			let output = unsafe {
+				TensorHandleRef::<R>::from_raw_parts(
+					output_handle,
+					output_strides,
+					output_shape,
+					4,
+				)
+			};
 
 			Ok(output)
 		} else {

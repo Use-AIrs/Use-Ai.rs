@@ -33,10 +33,10 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
 				)
 			};
 			println!(
-				"ArgMin3d( in: {:?}, out: {:?}",
+				"ArgMin3d( in: {:?}, out: {:?})",
 				&input.shape, &output.shape
 			);
-			reduce::<R, f32, f32, ArgMin>(&client, input, output, axis, None)?;
+			reduce::<R, f32, f32, ArgMin>(client, input, output, axis, None)?;
 
 			let output = unsafe {
 				TensorHandleRef::<R>::from_raw_parts(
@@ -51,13 +51,13 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
 			if input.strides == [1, 1] {
 				let output_handle = Box::leak(Box::new(client.empty(4)));
 				let output = unsafe {
-					TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
+					TensorHandleRef::<R>::from_raw_parts(output_handle, &[1, 1], &[1, 1], 4)
 				};
 				println!(
-					"ArgMin( in: {:?}, out: {:?}",
+					"ArgMin( in: {:?}, out: {:?})",
 					&input.shape, &output.shape
 				);
-				reduce::<R, f32, f32, ArgMin>(&client, input, output, 1, None)?;
+				reduce::<R, f32, f32, ArgMin>(client, input, output, 1, None)?;
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(output_handle, &[1, 1], &[1, 1], 4)
 				};
@@ -71,12 +71,12 @@ impl<R: Runtime> PipelineExec<R> for ExecArgMin<R> {
 					TensorHandleRef::<R>::from_raw_parts(output_handle, strides, shape, 4)
 				};
 				println!(
-					"ArgMin( in: {:?}, out: {:?}",
+					"ArgMin( in: {:?}, out: {:?})",
 					&input.shape, &output.shape
 				);
-				reduce::<R, f32, f32, ArgMin>(&client, input, output, 1, None)?;
+				reduce::<R, f32, f32, ArgMin>(client, input, output, 1, None)?;
 				let output = unsafe {
-					TensorHandleRef::<R>::from_raw_parts(output_handle, &[1, 1], &[1, 1], 4)
+					TensorHandleRef::<R>::from_raw_parts(output_handle, strides, shape, 4)
 				};
 				Ok(output)
 			}

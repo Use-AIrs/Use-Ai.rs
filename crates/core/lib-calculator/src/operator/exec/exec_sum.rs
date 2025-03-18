@@ -18,6 +18,7 @@ impl<R: Runtime> PipelineExec<R> for ExecSum<R> {
 		if input.shape.len() == 3 {
 			let m = input.shape[0];
 			let n = input.shape[1];
+			let axis = 2;
 
 			let output_shape = Box::leak(Box::new([m, n, 1]));
 			let output_strides = Box::leak(Box::new([n, 1, 1]));
@@ -37,7 +38,7 @@ impl<R: Runtime> PipelineExec<R> for ExecSum<R> {
 				&input.shape, &output.shape
 			);
 
-			reduce::<R, f32, f32, Sum>(&client, input, output, 2, None)?;
+			reduce::<R, f32, f32, Sum>(client, input, output, axis, None)?;
 			let output = unsafe {
 				TensorHandleRef::<R>::from_raw_parts(
 					output_handle,
@@ -58,28 +59,37 @@ impl<R: Runtime> PipelineExec<R> for ExecSum<R> {
 					&input.shape, &output.shape
 				);
 
-				reduce::<R, f32, f32, Sum>(&client, input, output, 1, None)?;
+				reduce::<R, f32, f32, Sum>(client, input, output, 1, None)?;
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(output_handle, &[1, 1], &[1, 1], 4)
 				};
 				Ok(output)
 			} else {
 				let n = input.shape[0];
-				let shape = [n, 1];
-				let out_shape = Box::leak(Box::new([1, n]));
-				let strides = Box::leak(Box::new([1, 1]));
+				let temp_shape = Box::leak(Box::new([n, 1]));
+				let temp_strides = Box::leak(Box::new([1, 1]));
 				let output_handle = Box::leak(Box::new(client.empty(n * 4)));
+
 				let output = unsafe {
-					TensorHandleRef::<R>::from_raw_parts(output_handle, strides, &shape, 4)
+					TensorHandleRef::<R>::from_raw_parts(output_handle, temp_strides, temp_shape, 4)
 				};
 				println!(
 					"Sum( in: {:?}, out: {:?} )",
 					&input.shape, &output.shape
 				);
 
-				reduce::<R, f32, f32, Sum>(&client, input, output, 1, None)?;
+				reduce::<R, f32, f32, Sum>(client, input, output, 1, None)?;
+
+				// Transform output to match expected row vector format
+				let out_shape = Box::leak(Box::new([1, n]));
+				let out_strides = Box::leak(Box::new([n, 1]));
 				let output = unsafe {
-					TensorHandleRef::<'o, R>::from_raw_parts(output_handle, strides, out_shape, 4)
+					TensorHandleRef::<'o, R>::from_raw_parts(
+						output_handle,
+						out_strides,
+						out_shape,
+						4,
+					)
 				};
 				Ok(output)
 			}

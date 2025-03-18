@@ -15,15 +15,12 @@ impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
 		client: &ComputeClient<R::Server, R::Channel>,
 	) -> Result<TensorHandleRef<'o, R>> {
 		let stride = input.strides.iter().as_slice();
-
 		if stride == &[1, 1] {
 			let n = input.shape[1];
 			let output_shape = Box::leak(Box::new([2, n]));
 			let output_strides = Box::leak(Box::new([n, 1]));
 			let total_bytes = 2 * n * 4;
-
 			let output_handle = Box::leak(Box::new(client.empty(total_bytes)));
-
 			let output_tensor = unsafe {
 				TensorHandleRef::<'_, R>::from_raw_parts(
 					output_handle,
@@ -32,12 +29,10 @@ impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
 					4,
 				)
 			};
-
 			println!(
 				"PrepSquare( in: {:?}, out: {:?}",
 				&input.shape, &output_tensor.shape
 			);
-
 			unsafe {
 				prep_square::launch_unchecked::<f32, R>(
 					&client,
@@ -47,7 +42,6 @@ impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
 					output_tensor.as_tensor_arg(1),
 				);
 			}
-
 			let output_tensor = unsafe {
 				TensorHandleRef::<'o, R>::from_raw_parts(
 					output_handle,
@@ -64,9 +58,7 @@ impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
 			let output_strides = Box::leak(Box::new([n, m, 1]));
 			let size = m * n * 2;
 			let total_bytes = size * 4;
-
 			let output_handle = Box::leak(Box::new(client.empty(total_bytes)));
-
 			let output_tensor = unsafe {
 				TensorHandleRef::<'_, R>::from_raw_parts(
 					output_handle,
@@ -75,12 +67,10 @@ impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
 					4,
 				)
 			};
-
 			println!(
 				"PrepSquare( in: {:?}, out: {:?}",
 				&input.shape, &output_tensor.shape
 			);
-
 			unsafe {
 				prep_square::launch_unchecked::<f32, R>(
 					&client,
@@ -90,7 +80,6 @@ impl<R: Runtime> PipelinePush<R> for PrepSquare<R> {
 					output_tensor.as_tensor_arg(1),
 				);
 			}
-
 			let output_tensor = unsafe {
 				TensorHandleRef::<'o, R>::from_raw_parts(
 					output_handle,

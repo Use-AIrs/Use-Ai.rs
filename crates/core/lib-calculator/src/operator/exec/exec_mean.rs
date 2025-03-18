@@ -1,11 +1,9 @@
 use crate::error::Result;
 use crate::operator::exec::base::PipelineExec;
 
-use cubecl::client::ComputeClient;
-use cubecl::prelude::TensorHandleRef;
+use cubecl::prelude::*;
 use cubecl::reduce::instructions::Mean;
 use cubecl::reduce::reduce;
-use cubecl::Runtime;
 use std::marker::PhantomData;
 
 pub struct ExecMean<R: Runtime> {
@@ -35,12 +33,11 @@ impl<R: Runtime> PipelineExec<R> for ExecMean<R> {
 				)
 			};
 
-			println!();
 			println!(
-				"Mean3d( in: {:?}, out: {:?}",
+				"Mean3d( in: {:?}, out: {:?})",
 				&input.shape, &output.shape
 			);
-			reduce::<R, f32, f32, Mean>(&client, input, output, axis, None)?;
+			reduce::<R, f32, f32, Mean>(client, input, output, axis, None)?;
 			let output = unsafe {
 				TensorHandleRef::<R>::from_raw_parts(
 					output_handle,
@@ -54,14 +51,13 @@ impl<R: Runtime> PipelineExec<R> for ExecMean<R> {
 			if input.strides == [1, 1] {
 				let output_handle = Box::leak(Box::new(client.empty(4)));
 				let output = unsafe {
-					TensorHandleRef::<R>::from_raw_parts(&output_handle, &[1, 1], &[1, 1], 4)
+					TensorHandleRef::<R>::from_raw_parts(output_handle, &[1, 1], &[1, 1], 4)
 				};
-				println!();
 				println!(
-					"Mean( in: {:?}, out: {:?}",
+					"Mean( in: {:?}, out: {:?})",
 					&input.shape, &output.shape
 				);
-				reduce::<R, f32, f32, Mean>(&client, input, output, 1, None)?;
+				reduce::<R, f32, f32, Mean>(client, input, output, 1, None)?;
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(output_handle, &[1, 1], &[1, 1], 4)
 				};
@@ -74,14 +70,23 @@ impl<R: Runtime> PipelineExec<R> for ExecMean<R> {
 				let output = unsafe {
 					TensorHandleRef::<R>::from_raw_parts(output_handle, strides, shape, 4)
 				};
-				println!();
+
 				println!(
-					"Mean( in: {:?}, out: {:?}",
+					"Mean( in: {:?}, out: {:?})",
 					&input.shape, &output.shape
 				);
-				reduce::<R, f32, f32, Mean>(&client, input, output, 1, None)?;
+				reduce::<R, f32, f32, Mean>(client, input, output, 1, None)?;
+
+				// Transform output to match expected row vector format
+				let out_shape = Box::leak(Box::new([1, n]));
+				let out_strides = Box::leak(Box::new([n, 1]));
 				let output = unsafe {
-					TensorHandleRef::<R>::from_raw_parts(output_handle, strides, shape, 4)
+					TensorHandleRef::<'o, R>::from_raw_parts(
+						output_handle,
+						out_strides,
+						out_shape,
+						4,
+					)
 				};
 				Ok(output)
 			}

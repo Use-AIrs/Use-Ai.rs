@@ -42,7 +42,7 @@ mod tests {
 		let dummy_tensor = create_random_vector(&client, len, shape, stride);
 
 		let start = Instant::now();
-		let t: TensorHandleRef<WgpuRuntime> = PrepSquare::push((dummy_tensor), &client)?;
+		let t: TensorHandleRef<WgpuRuntime> = PrepSquare::push(dummy_tensor, &client)?;
 		let output_handle = t.handle.clone();
 
 		let binding = output_handle.binding();

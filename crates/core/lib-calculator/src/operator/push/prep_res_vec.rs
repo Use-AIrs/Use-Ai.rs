@@ -1,8 +1,6 @@
 use crate::error::Result;
 use crate::operator::push::base::PipelinePush;
-use crate::MetaData;
 use cubecl::prelude::*;
-use cubecl::server::Handle;
 use std::marker::PhantomData;
 
 pub struct PrepResiduals<R: Runtime> {

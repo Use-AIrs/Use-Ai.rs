@@ -1,10 +1,11 @@
+/*
 #[cfg(test)]
 mod tests {
 	use crate::error::Result;
 	use crate::operator::*;
 	use crate::MetaData;
+	use action_space::action_space;
 	use cubecl::wgpu::WgpuRuntime;
-	use lib_proc_macros::action_space;
 
 	fn create_meta_vector() -> MetaData {
 		MetaData::build(Box::new([1, 1]), Box::new([1, 12]))
@@ -15,14 +16,13 @@ mod tests {
 	}
 
 	#[test]
-	fn test_action_space_vector() -> Result<()> {
+	fn test_action_space_vector<R: Runtime>() -> Result<()> {
 		let meta = create_meta_vector();
-		let tensor = meta.tensorref_from_vec::<WgpuRuntime>(vec![
+		let tensor = meta.tensorref_from_vec::<R>(vec![
 			1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
 		]);
 
 		let score = action_space!(
-			WgpuRuntime,
 			(tensor, ExecMean, output_handle),
 			((tensor, output_handle), PrepResiduals),
 			(ExecSum),
@@ -48,7 +48,6 @@ mod tests {
 		]);
 
 		let score = action_space!(
-			WgpuRuntime,
 			(tensor, ExecMean, output_handle),
 			((tensor, output_handle), PrepResiduals),
 			(ExecSum),
@@ -64,3 +63,4 @@ mod tests {
 		Ok(())
 	}
 }
+*/

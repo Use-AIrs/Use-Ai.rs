@@ -60,24 +60,19 @@ impl Parse for ActionStep {
 }
 
 struct ActionSpaceInput {
-	runtime: Type,
 	steps: Punctuated<ActionStep, Token![,]>,
 }
 
 impl Parse for ActionSpaceInput {
 	fn parse(input: ParseStream) -> SynResult<Self> {
-		let runtime = input.parse::<Type>()?;
-		input.parse::<Token![,]>()?;
 		let steps = Punctuated::parse_terminated(input)?;
-
-		Ok(ActionSpaceInput { runtime, steps })
+		Ok(ActionSpaceInput { steps })
 	}
 }
 
 #[proc_macro]
 pub fn action_space(input: TokenStream) -> TokenStream {
 	let action_input = parse_macro_input!(input as ActionSpaceInput);
-	let runtime = action_input.runtime;
 	let steps = action_input.steps.into_iter().collect::<Vec<_>>();
 
 	if steps.is_empty() {
@@ -91,10 +86,6 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 
 	let mut code = TokenStream2::new();
 	let mut current_output = None;
-
-	code.extend(quote! {
-		let client = #runtime::client(&Default::default());
-	});
 
 	for (i, step) in steps.iter().enumerate() {
 		let op = &step.op;
@@ -110,7 +101,6 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 		}
 
 		if let Some(inputs) = &step.inputs {
-			// Only create a clone for the first step with inputs
 			if i == 0 {
 				code.extend(quote! {
 					let clone = unsafe {
@@ -132,7 +122,7 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 					.starts_with("Exec")
 				{
 					code.extend(quote! {
-						let #t = #op::<#runtime>::exec(clone, &client)?;
+						let #t = #op::<R>::exec(clone, &client)?;
 					});
 					current_output = Some(quote! { #t });
 				} else if op
@@ -144,12 +134,11 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 					.starts_with("Prep")
 				{
 					code.extend(quote! {
-						let #t = #op::<#runtime>::push(clone, &client)?;
+						let #t = #op::<R>::push(clone, &client)?;
 					});
 					current_output = Some(quote! { #t });
 				}
 			} else {
-				// For subsequent steps, use the inputs directly without cloning
 				if op
 					.segments
 					.last()
@@ -159,7 +148,7 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 					.starts_with("Exec")
 				{
 					code.extend(quote! {
-						let #t = #op::<#runtime>::exec(#inputs, &client)?;
+						let #t = #op::<R>::exec(#inputs, &client)?;
 					});
 					current_output = Some(quote! { #t });
 				} else if op
@@ -171,7 +160,7 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 					.starts_with("Prep")
 				{
 					code.extend(quote! {
-						let #t = #op::<#runtime>::push(#inputs, &client)?;
+						let #t = #op::<R>::push(#inputs, &client)?;
 					});
 					current_output = Some(quote! { #t });
 				}
@@ -187,7 +176,7 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 					.starts_with("Exec")
 				{
 					code.extend(quote! {
-						let #t = #op::<#runtime>::exec(#prev_output, &client)?;
+						let #t = #op::<R>::exec(#prev_output, &client)?;
 					});
 					current_output = Some(quote! { #t });
 				} else if op
@@ -204,7 +193,7 @@ pub fn action_space(input: TokenStream) -> TokenStream {
 					current_output = Some(quote! { #t });
 				} else {
 					code.extend(quote! {
-						let #t = #op::<#runtime>::push(#prev_output, &client)?;
+						let #t = #op::<R>::push(#prev_output, &client)?;
 					});
 					current_output = Some(quote! { #t });
 				}

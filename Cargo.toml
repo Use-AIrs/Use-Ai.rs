@@ -2,12 +2,13 @@
 resolver = "2"
 members = [
     # These are the core libarys
-
     "crates/core/lib-calculator",
-    "crates/core/lib-proc_macros",
     "crates/core/lib-stage",
     "crates/core/lib-store",
     "crates/core/playground",
+
+    # Here we find our procedural macros
+    "crates/core/proc-macros/action-space",
 
     # Tools for exploring options and a demonstration of an imlpemantation in the form of CLIs
     "crates/use-ai",

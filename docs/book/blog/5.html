@@ -168,9 +168,9 @@ With <strong>Action Space</strong>, the goal was to abstract <strong>Tensor</str
 use lib_proc_macros::action_space;
 
 fn some() {
-    let input = build_tensor();
+    let input: TensorHandleRef&lt;WgpuRuntime&gt; = build_tensor::&lt;WgpuRuntime&gt;();
 
-    let (metadata, handle) = action_space!(
+    let result: TensorHandleRef&lt;WgpuRuntime&gt; = action_space!(
         WgpuRuntime,
         (input, ExecMean, output),
         ((input, output), PrepResiduals),

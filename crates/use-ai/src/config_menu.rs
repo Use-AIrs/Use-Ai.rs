@@ -1,6 +1,6 @@
 use crate::error::Result;
 use inquire::{Select, Text};
-use lib_store::mangodb::{activate_config, config_from_file, list_configs};
+use lib_store::{activate_config, config_from_file, list_configs};
 
 pub fn config_menu() -> Result<()> {
 	loop {

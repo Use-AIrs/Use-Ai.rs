@@ -1,4 +1,3 @@
-pub mod config;
 mod error;
 mod model;
 mod operator;

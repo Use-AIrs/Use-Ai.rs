@@ -1,7 +1,7 @@
-use crate::config::DataSection;
 use crate::data::RawTable;
-use crate::error::{Result, TransformerError};
+use crate::error::{Result, StageError};
 use csv::{ReaderBuilder, StringRecord};
+use lib_store::cfg::DataSection;
 use ndarray::{stack, Array1, Array2, Axis};
 use rayon::prelude::*;
 use std::collections::HashMap;
@@ -54,7 +54,7 @@ pub fn build(
 		Axis(0),
 		&processed.iter().map(|arr| arr.view()).collect::<Vec<_>>(),
 	)
-	.map_err(|e| TransformerError::ShapingError(e))?;
+	.map_err(|e| StageError::ShapingError(e))?;
 
 	Ok(RawTable {
 		header,

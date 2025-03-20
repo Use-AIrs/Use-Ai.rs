@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ndarray = { version =  "0.16.1", features = ["rayon"] }
+lib-store = { path = "../lib-store" }
+
+ndarray = { version = "0.16.1", features = ["rayon"] }
 csv = "1.3.1"
 rayon = "1.10.0"
 thiserror = "2.0.11"

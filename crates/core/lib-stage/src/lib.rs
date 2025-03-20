@@ -1,17 +1,19 @@
 #[allow(unused_imports, dead_code, unused_variables)]
-use crate::config::DataSection;
 use crate::data::{RawTable, Table};
-use crate::error::{Result, TransformerError};
+use crate::error::{Result, StageError};
 
-pub mod config;
+use lib_store::{cfg::DataSection, get_active_config};
+
 pub mod data;
 
 pub mod error;
 pub mod output_guard;
 
-pub fn transformer(instruction: DataSection) -> Result<()> {
+pub fn stager() -> Result<()> {
+	let cfg = get_active_config()?;
+	let instruction = cfg.data;
 	let data = get_data(&instruction)?;
-	let result = transform(data, &instruction)?;
+	let result = stage(data, &instruction)?;
 	println!("{:?}", result);
 	Ok(())
 }
@@ -20,16 +22,16 @@ fn get_data(data_source: &DataSection) -> Result<RawTable<String>> {
 	let config = data_source;
 	match data_source.source.source_type.as_str() {
 		"csv" => RawTable::<String>::from_csv(config),
-		_ => Err(TransformerError::DataTypeNotSupported),
+		_ => Err(StageError::DataTypeNotSupported),
 	}
 }
-pub fn transform(
+pub fn stage(
 	mut table: RawTable<String>,
 	instructions: &DataSection,
 ) -> Result<Table> {
 	let transformations = match &instructions.transformer {
 		Some(transformations) => transformations,
-		None => return Err(TransformerError::NoTransformationsDefined),
+		None => return Err(StageError::NoTransformationsDefined),
 	};
 
 	for transformation in transformations {
@@ -38,11 +40,11 @@ pub fn transform(
 				let params = transformation
 					.params
 					.clone()
-					.ok_or(TransformerError::NoTransformationParams)?;
+					.ok_or(StageError::NoTransformationParams)?;
 
 				let columns = params
 					.columns
-					.ok_or(TransformerError::TransformationParamsWrong)?;
+					.ok_or(StageError::TransformationParamsWrong)?;
 
 				println!(
 					"Applying 'categories' to columns: {:?}",

@@ -1,5 +1,3 @@
-//! Here we find the part of the configuration which will be handles by `lib-calculator`.
-use super::model::gbdt::GbdtRules;
 use serde::{Deserialize, Serialize};
 
 /// Models is an enum which represents every current model available  in Use-AI.rs and Context needed
@@ -59,4 +57,11 @@ pub struct HPQLearning {
 	pub learning_rate: f32,
 	pub discount: f32,
 	pub episodes: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GbdtRules {
+	pub n_trees: u32,
+	pub learning_rate: f32,
+	pub max_depth: u32,
 }

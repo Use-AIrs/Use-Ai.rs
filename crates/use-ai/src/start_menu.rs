@@ -1,6 +1,6 @@
 use crate::error::Result;
 use inquire::Select;
-use lib_store::init_transformation;
+use lib_stage::stager;
 
 pub fn start_menu() -> Result<()> {
 	loop {
@@ -29,5 +29,5 @@ pub fn start_menu() -> Result<()> {
 }
 
 fn init_transform() -> Result<()> {
-	Ok(init_transformation()?)
+	Ok(stager()?)
 }

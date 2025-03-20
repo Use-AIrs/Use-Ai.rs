@@ -1,7 +1,7 @@
 #[allow(unused_imports, dead_code, unused_variables)]
 pub mod for_raw_table;
 
-use crate::error::{Result, TransformerError};
+use crate::error::{Result, StageError};
 
 use ndarray::Array2;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
@@ -41,7 +41,7 @@ impl RawTable<String> {
 	) -> Result<Self> {
 		let header = match &self.header {
 			Some(h) => h,
-			None => Err(TransformerError::NoInputColumns)?,
+			None => Err(StageError::NoInputColumns)?,
 		};
 
 		let mut global_map = self.map.take().unwrap_or_else(HashMap::new);

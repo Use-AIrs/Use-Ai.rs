@@ -1,6 +1,11 @@
-use crate::error::{Result, StagingError};
-use lib_calculator::config::Models;
-use lib_stage::config::{DataSection, OutputSection};
+pub mod calc;
+pub mod stage;
+
+pub use calc::*;
+pub use stage::*;
+
+use crate::error::{Result, StoreError};
+
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -27,21 +32,9 @@ impl Config {
 
 		let config: Config = serde_json::from_reader(reader)?;
 		if config.version != Self::cfg_version() {
-			Err(StagingError::InvalidConfig)
+			Err(StoreError::InvalidConfig)
 		} else {
 			Ok(config)
-		}
-	}
-
-	pub fn get_runtime(path: String) -> Result<String> {
-		let file = File::open(&path)?;
-		let reader = BufReader::new(file);
-
-		let config: Config = serde_json::from_reader(reader)?;
-		if config.version != Self::cfg_version() {
-			Err(StagingError::InvalidConfig)
-		} else {
-			Ok(config.name.unwrap_or_default())
 		}
 	}
 }

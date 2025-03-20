@@ -1,12 +1,11 @@
-use lib_stage::error::TransformerError;
 use mongodb::bson::document::ValueAccessError;
 use serde_json::Error as SerdeError;
 use thiserror::Error;
 
-pub type Result<T> = core::result::Result<T, StagingError>;
+pub type Result<T> = core::result::Result<T, StoreError>;
 
 #[derive(Debug, Error)]
-pub enum StagingError {
+pub enum StoreError {
 	#[error(transparent)]
 	SerdeJsonError(#[from] SerdeError),
 	#[error("IO Config Error")]
@@ -15,12 +14,10 @@ pub enum StagingError {
 	InvalidConfig,
 	#[error("MangoDB Error")]
 	MangoDB(#[from] mongodb::error::Error),
-	#[error("MangoDB Value Access Error")]
+	#[error(transparent)]
 	MangoValueAcessError(#[from] ValueAccessError),
 	#[error("No Config active")]
 	NoConfigActive,
 	#[error("Data type not found")]
 	NoDataSource,
-	#[error("Data type not found")]
-	NoDataScheme(#[from] TransformerError),
 }

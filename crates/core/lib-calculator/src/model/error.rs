@@ -3,7 +3,4 @@ use thiserror::Error;
 pub type Result<T> = core::result::Result<T, ModelError>;
 
 #[derive(Debug, Error)]
-pub enum ModelError {
-	#[error("GBDT")]
-	GBDT,
-}
+pub enum ModelError {}

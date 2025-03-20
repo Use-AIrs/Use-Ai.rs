@@ -1,5 +1,6 @@
 use inquire::InquireError;
-use lib_store::error::StagingError;
+use lib_stage::error::StageError;
+use lib_store::error::StoreError;
 use thiserror::Error;
 
 pub type Result<T> = core::result::Result<T, ToolError>;
@@ -9,7 +10,7 @@ pub enum ToolError {
 	#[error(transparent)]
 	UseAiMenuError(#[from] InquireError),
 	#[error(transparent)]
-	StagingError(#[from] StagingError),
-	#[error("Unknown Error")]
-	UseAiError,
+	StageError(#[from] StageError),
+	#[error(transparent)]
+	StoreError(#[from] StoreError),
 }

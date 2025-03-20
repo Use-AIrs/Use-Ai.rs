@@ -1,12 +1,13 @@
+use lib_store::error::StoreError;
 use ndarray::ShapeError;
 use std::convert::Infallible;
 use std::num::{ParseFloatError, ParseIntError};
 use thiserror::Error;
 
-pub type Result<T> = core::result::Result<T, TransformerError>;
+pub type Result<T> = core::result::Result<T, StageError>;
 
 #[derive(Debug, Error)]
-pub enum TransformerError {
+pub enum StageError {
 	#[error("CSV Prase Error")]
 	CsvError,
 	#[error("CSV Array Error: {0}")]
@@ -43,4 +44,6 @@ pub enum TransformerError {
 	TransformationParamsWrong,
 	#[error("No Transformations Defined")]
 	NoTransformationsDefined,
+	#[error(transparent)]
+	ConfigurationError(#[from] StoreError),
 }

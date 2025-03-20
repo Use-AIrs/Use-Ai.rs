@@ -17,15 +17,31 @@ pub struct Config {
 }
 
 impl Config {
+	pub fn cfg_version() -> String {
+		"0.11_pre_alpha".to_string()
+	}
+
 	pub fn get_config(path: String) -> Result<Config> {
 		let file = File::open(&path)?;
 		let reader = BufReader::new(file);
 
 		let config: Config = serde_json::from_reader(reader)?;
-		if config.version != "0.11_pre_alpha" {
+		if config.version != Self::cfg_version() {
 			Err(StagingError::InvalidConfig)
 		} else {
 			Ok(config)
+		}
+	}
+
+	pub fn get_runtime(path: String) -> Result<String> {
+		let file = File::open(&path)?;
+		let reader = BufReader::new(file);
+
+		let config: Config = serde_json::from_reader(reader)?;
+		if config.version != Self::cfg_version() {
+			Err(StagingError::InvalidConfig)
+		} else {
+			Ok(config.name.unwrap_or_default())
 		}
 	}
 }

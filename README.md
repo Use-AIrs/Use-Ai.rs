@@ -1,9 +1,13 @@
-# Welcome to Use-AI.rs!
+# Paused
 
-At **Use-AI.rs**, we are building an open-source AI framework in Rust.  
+#### Hello, i decided to pause this Git-Repo till i got an alpha version done. The initial goal of showing my project conzept to the a jury of the german goverment was succsessfully compleded. I am currently working on a more complete Library. I aim to come back with a publishable version before the last quarter of this year! Untill then feel free to have a look arround and see what the concepts idea is.
+
+## Welcome to Use-AI.rs!
+
+At **Use-AI.rs**, we are building an open-source AI framework in Rust.
 Our goal is to create a concurrent, locally hostable AI agent for practical applications in production environments.
 
-To achieve this goal, we are building on top of [Burn](https://burn.dev/) and [CubeCL](https://github.com/tracel-ai/cubecl).  
+To achieve this goal, we are building on top of [Burn](https://burn.dev/) and [CubeCL](https://github.com/tracel-ai/cubecl).
 We are working with a JSON configuration standard. This configuration file contains all the information required to transform data and execute various AI operations. CubeCL provides us with the necessary operational tools to achieve our aim of delivering a practical AI framework.
 
 For production coding, we will focus on implementing reinforcement learning (RL) algorithms such as **Q-Learning** and **Deep Q-Networks**. Additionally, we plan to implement ensemble learning algorithms. In the first iteration, we will use **gradient-based decision trees (GBDT)**.
@@ -13,7 +17,7 @@ To provide insights into our decision-making process and document early-stage ch
 
 ## Use AI Tool
 
-This tool represents the highest level of abstraction we provide, in the form of a **CLI tool**.  
+This tool represents the highest level of abstraction we provide, in the form of a **CLI tool**.
 The CLI tool will include:
 
 - A **configuration manager** and
@@ -39,7 +43,7 @@ The stored data can be downstreamed for further use.
 
 ### Stage
 
-The **Stage** component processes and prepares abstract information for the Operator.  
+The **Stage** component processes and prepares abstract information for the Operator.
 Key features:
 - Prepares data for downstream processing.
 - Parallelizes some operations using [Rayon](https://docs.rs/rayon/latest/rayon/) on the CPU.
@@ -49,7 +53,7 @@ Key features:
 
 ### Calculator
 
-The **Calculator** component processes prepared data into **Burn Tensors**.  
+The **Calculator** component processes prepared data into **Burn Tensors**.
 Key features:
 - Executes Tensors using the **WGPU backend** for now.
 - Designed with reinforcement learning (RL) in mind.

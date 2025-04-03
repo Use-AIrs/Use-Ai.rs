@@ -1,6 +1,8 @@
 # Paused
 
-#### Hello, i decided to pause this Git-Repo till i got an alpha version done. The initial goal of showing my project conzept to the a jury of the german goverment was succsessfully compleded. I am currently working on a more complete Library. I aim to come back with a publishable version before the last quarter of this year! Untill then feel free to have a look arround and see what the concepts idea is.
+##### Hello, 
+
+##### i decided to pause this Git-Repo till i got an alpha version done. The initial goal of showing my project conzept to the a jury of the german goverment was succsessfully compleded. I am currently working on a more complete Library. I aim to come back with a publishable version before the last quarter of this year! Untill then feel free to have a look arround and see what the concepts idea is.
 
 ## Welcome to Use-AI.rs!
 
